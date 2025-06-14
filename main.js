@@ -25,9 +25,14 @@ class BookingCalendar extends HTMLElement {
             const data = await res.json();
 
             const events = data.items.map(item => ({
-              title: `${formatTime(item.startTime)} → ${formatTime(item.endTime)}\nResource: ${item.resourceRelationship?.name || 'Unknown'}`,
+              title: '', // leave empty, we’ll use eventContent instead
               start: item.startTime,
-              end: item.endTime
+              end: item.endTime,
+              extendedProps: {
+                startTime: formatTime(item.startTime),
+                endTime: formatTime(item.endTime),
+                resource: item.resourceRelationship?.name || 'Unknown'
+              }
             }));
 
             successCallback(events);
@@ -35,6 +40,21 @@ class BookingCalendar extends HTMLElement {
             console.error("Fetching events failed", err);
             failureCallback(err);
           }
+        },
+
+        eventContent: function(arg) {
+          const start = arg.event.extendedProps.startTime;
+          const end = arg.event.extendedProps.endTime;
+          const resource = arg.event.extendedProps.resource;
+
+          return {
+            html: `
+              <div style="white-space: normal;">
+                <strong>${start} → ${end}</strong><br/>
+                <span style="font-size: 0.85em;">Resource: ${resource}</span>
+              </div>
+            `
+          };
         }
       });
 

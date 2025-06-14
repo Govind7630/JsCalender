@@ -17,8 +17,7 @@ class BookingCalendar extends HTMLElement {
     script.onload = () => {
       const calendar = new FullCalendar.Calendar(this.querySelector('#calendar'), {
         initialView: 'dayGridMonth',
-        displayEventTime: false, // <-- remove that repeated time on calendar
-        selectable: false,
+        displayEventTime: false, // disables default time display
 
         events: async (fetchInfo, successCallback, failureCallback) => {
           try {
@@ -31,9 +30,14 @@ class BookingCalendar extends HTMLElement {
               const resource = item.r_resourceRelationship_c_resource?.name || 'Unknown';
 
               return {
-                title: `${start} → ${end}<br>${resource}`, // use <br> instead of \n
+                title: '', // leave empty, we use eventContent
                 start: item.startTime,
-                end: item.endTime
+                end: item.endTime,
+                extendedProps: {
+                  start,
+                  end,
+                  resource
+                }
               };
             });
 
@@ -42,6 +46,17 @@ class BookingCalendar extends HTMLElement {
             console.error('Fetching events failed', err);
             failureCallback(err);
           }
+        },
+
+        eventContent: function(arg) {
+          const { start, end, resource } = arg.event.extendedProps;
+
+          const container = document.createElement('div');
+          container.innerHTML = `
+            <div style="font-weight:bold;">${start} → ${end}</div>
+            <div style="font-size: 0.9em; color: #555;">${resource}</div>
+          `;
+          return { domNodes: [container] };
         }
       });
 

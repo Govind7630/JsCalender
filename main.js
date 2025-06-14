@@ -15,9 +15,10 @@ class BookingCalendar extends HTMLElement {
         selectable: false,
 
         events: async function (fetchInfo, successCallback, failureCallback) {
-          const res = await fetch('/o/c/bookings');
-
+          try {
+            const res = await fetch('/o/c/bookings');
             const data = await res.json();
+
             const events = data.items.map(item => ({
               title: item.purpose || 'No Title',
               start: item.startTime,
@@ -30,7 +31,6 @@ class BookingCalendar extends HTMLElement {
             failureCallback(err);
           }
         }
-
       });
 
       calendar.render();

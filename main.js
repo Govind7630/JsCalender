@@ -17,6 +17,7 @@ class BookingCalendar extends HTMLElement {
     script.onload = () => {
       const calendar = new FullCalendar.Calendar(this.querySelector('#calendar'), {
         initialView: 'dayGridMonth',
+        displayEventTime: false, // <-- remove that repeated time on calendar
         selectable: false,
 
         events: async (fetchInfo, successCallback, failureCallback) => {
@@ -30,7 +31,7 @@ class BookingCalendar extends HTMLElement {
               const resource = item.r_resourceRelationship_c_resource?.name || 'Unknown';
 
               return {
-                title: `${start} → ${end}\n${resource}`,
+                title: `${start} → ${end}<br>${resource}`, // use <br> instead of \n
                 start: item.startTime,
                 end: item.endTime
               };

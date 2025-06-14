@@ -1,5 +1,6 @@
 class BookingCalendar extends HTMLElement {
   connectedCallback() {
+    console.log("Custom element loaded");
     this.innerHTML = `<div id="calendar"></div>`;
 
     const link = document.createElement('link');

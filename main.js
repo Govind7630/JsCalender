@@ -21,7 +21,7 @@ class BookingCalendar extends HTMLElement {
 
         events: async function (fetchInfo, successCallback, failureCallback) {
           try {
-            const res = await fetch('/o/c/bookings');
+            const res = await fetch('/o/c/bookings?nestedFields=r_resourceRelationship_c_resourceId');
             const data = await res.json();
 
             const events = data.items.map(item => ({

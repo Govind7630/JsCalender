@@ -15,13 +15,7 @@ class BookingCalendar extends HTMLElement {
         selectable: false,
 
         events: async function (fetchInfo, successCallback, failureCallback) {
-          try {
-            const res = await fetch('http://localhost:8080/o/c/bookings', {
-              headers: {
-                'Authorization': 'Basic ' + btoa('test@liferay.com:test'),
-                'Content-Type': 'application/json'
-              }
-            });
+          const res = await fetch('/o/c/bookings');
 
             const data = await res.json();
             const events = data.items.map(item => ({

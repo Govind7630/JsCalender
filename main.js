@@ -1,3 +1,8 @@
+function formatTime(dateTimeString) {
+  const date = new Date(dateTimeString);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 class BookingCalendar extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `<div id="calendar"></div>`;
@@ -20,7 +25,7 @@ class BookingCalendar extends HTMLElement {
             const data = await res.json();
 
             const events = data.items.map(item => ({
-              title: item.purpose || 'No Title',
+              title: `${formatTime(item.startTime)} → ${formatTime(item.endTime)}\nResource: ${item.resourceRelationship?.name || 'Unknown'}`,
               start: item.startTime,
               end: item.endTime
             }));

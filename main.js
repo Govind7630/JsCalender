@@ -1,9 +1,9 @@
-function formatTime(dateTimeString) {
-  const date = new Date(dateTimeString);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
 class BookingCalendar extends HTMLElement {
+  formatTime(dateTimeString) {
+    const date = new Date(dateTimeString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
   connectedCallback() {
     this.innerHTML = `<div id="calendar"></div>`;
 
@@ -19,42 +19,28 @@ class BookingCalendar extends HTMLElement {
         initialView: 'dayGridMonth',
         selectable: false,
 
-        events: async function (fetchInfo, successCallback, failureCallback) {
+        events: async (fetchInfo, successCallback, failureCallback) => {
           try {
-            const res = await fetch('/o/c/bookings?nestedFields=r_resourceRelationship_c_resourceId');
+            const res = await fetch('/o/c/bookings?nestedFields=r_resourceRelationship_c_resource');
             const data = await res.json();
 
-            const events = data.items.map(item => ({
-              title: '', // leave empty, we’ll use eventContent instead
-              start: item.startTime,
-              end: item.endTime,
-              extendedProps: {
-                startTime: formatTime(item.startTime),
-                endTime: formatTime(item.endTime),
-                resource: item.resourceRelationship?.name || 'Unknown'
-              }
-            }));
+            const events = data.items.map(item => {
+              const start = this.formatTime(item.startTime);
+              const end = this.formatTime(item.endTime);
+              const resource = item.r_resourceRelationship_c_resource?.name || 'Unknown';
+
+              return {
+                title: `${start} → ${end}\n${resource}`,
+                start: item.startTime,
+                end: item.endTime
+              };
+            });
 
             successCallback(events);
           } catch (err) {
-            console.error("Fetching events failed", err);
+            console.error('Fetching events failed', err);
             failureCallback(err);
           }
-        },
-
-        eventContent: function(arg) {
-          const start = arg.event.extendedProps.startTime;
-          const end = arg.event.extendedProps.endTime;
-          const resource = arg.event.extendedProps.resource;
-
-          return {
-            html: `
-              <div style="white-space: normal;">
-                <strong>${start} → ${end}</strong><br/>
-                <span style="font-size: 0.85em;">Resource: ${resource}</span>
-              </div>
-            `
-          };
         }
       });
 

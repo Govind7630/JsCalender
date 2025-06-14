@@ -1,22 +1,29 @@
 class BookingCalendar extends HTMLElement {
   connectedCallback() {
-    const container = document.createElement('div');
-    container.id = 'calendar';
-    container.style.height = '600px';
-    
+    // Inject HTML structure
+    this.innerHTML = `<div id="calendar"></div>`;
 
-    this.appendChild(container);
+    // Add FullCalendar CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.css';
+    document.head.appendChild(link);
 
+    // Add FullCalendar JS
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js';
+    script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
     script.onload = () => {
-      const calendar = new FullCalendar.Calendar(container, {
+      const calendarEl = this.querySelector('#calendar');
+      const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        events: [], // Replace with fetch if needed
+        selectable: true,
+        dateClick: function(info) {
+          alert('Clicked on: ' + info.dateStr);
+        }
       });
       calendar.render();
     };
-    document.head.appendChild(script);
+    document.body.appendChild(script);
   }
 }
 

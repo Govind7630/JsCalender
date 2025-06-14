@@ -2,8 +2,8 @@ class BookingCalendar extends HTMLElement {
   connectedCallback() {
     const container = document.createElement('div');
     container.id = 'calendar';
-    container.style.margin = '1rem';
-    container.textContent = 'Calendar loading...';
+    container.style.height = '600px';
+    
 
     this.appendChild(container);
 

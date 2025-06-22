@@ -21,18 +21,18 @@ class BookingCalendar extends HTMLElement {
 
         events: async (fetchInfo, successCallback, failureCallback) => {
           try {
-            const res = await fetch('/o/c/bookings?nestedFields=r_resourceRelationship_c_resource');
+            const res = await fetch('/o/c/bookings?nestedFields=resourceBooking');
             const data = await res.json();
 
             const events = data.items.map(item => {
-              const start = this.formatTime(item.startTime);
-              const end = this.formatTime(item.endTime);
-              const resource = item.r_resourceRelationship_c_resource?.name || 'Unknown';
+              const start = this.formatTime(item.startDateTime);
+              const end = this.formatTime(item.endDateTime);
+              const resource = item.resourceBooking?.name || 'Unknown';
 
               return {
                 title: '', // leave empty, we use eventContent
-                start: item.startTime,
-                end: item.endTime,
+                start: item.startDateTime,
+                end: item.endDateTime,
                 extendedProps: {
                   start,
                   end,

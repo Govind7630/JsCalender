@@ -117,7 +117,7 @@ class BookingCalendar extends HTMLElement {
 
       calendar.render();
 
-      const applyFilters = () => {
+      let applyFilters = () => {
         const selectedType = typeFilter.value;
         const selectedResource = resourceFilter.value;
         const fromDate = fromDateEl.value || today;

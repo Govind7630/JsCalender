@@ -4,6 +4,24 @@ class BookingCalendar extends HTMLElement {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  async getAccessToken() {
+    const params = new URLSearchParams();
+    params.append("grant_type", "client_credentials");
+    params.append("client_id", "id-dec3219b-34b3-7491-8698-40193ec681e7");
+    params.append("client_secret", "secret-abfba0a2-3f8f-6d56-408e-f98f6a71691e");
+
+    const res = await fetch("/o/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: params
+    });
+
+    const data = await res.json();
+    return data.access_token;
+  }
+
   connectedCallback() {
     this.innerHTML = `
       <div style="padding: 1rem; background: #f5f7fa; border-radius: 8px; margin-bottom: 1rem;">
@@ -42,6 +60,17 @@ class BookingCalendar extends HTMLElement {
     script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
 
     script.onload = async () => {
+      const token = await this.getAccessToken();
+
+      const fetchWithAuth = async (url) => {
+        const res = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        return res.json();
+      };
+
       const calendarEl = this.querySelector('#calendar');
       const typeFilter = this.querySelector('#typeFilter');
       const resourceFilter = this.querySelector('#resourceFilter');
@@ -52,8 +81,7 @@ class BookingCalendar extends HTMLElement {
       const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
       const typeMap = {};
 
-      const picklistRes = await fetch(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
-      const picklistData = await picklistRes.json();
+      const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
 
       picklistData.items.forEach(entry => {
         typeMap[entry.key] = entry.name;
@@ -63,10 +91,9 @@ class BookingCalendar extends HTMLElement {
         typeFilter.appendChild(opt);
       });
 
-      const allBookingsRes = await fetch('/o/c/bookings?nestedFields=resourceBooking');
-      const allBookings = (await allBookingsRes.json()).items.filter(b => new Date(b.endDateTime) >= new Date());
+      const allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking'))
+        .items.filter(b => new Date(b.endDateTime) >= new Date());
 
-      // Default fromDate = today
       const today = new Date().toISOString().split('T')[0];
       fromDateEl.value = today;
       fromDateEl.min = today;
@@ -90,7 +117,7 @@ class BookingCalendar extends HTMLElement {
 
       calendar.render();
 
-      function applyFilters() {
+      const applyFilters = () => {
         const selectedType = typeFilter.value;
         const selectedResource = resourceFilter.value;
         const fromDate = fromDateEl.value || today;
@@ -128,13 +155,11 @@ class BookingCalendar extends HTMLElement {
 
         calendar.removeAllEvents();
         calendar.addEventSource(filtered);
-      }
+      };
 
-      // Bind this so we can use `this.formatTime` inside applyFilters
       applyFilters = applyFilters.bind(this);
       applyFilters();
 
-      // Filter: Type change
       typeFilter.addEventListener('change', () => {
         const selectedType = typeFilter.value;
         resourceFilter.innerHTML = `<option value="">All</option>`;
@@ -156,7 +181,6 @@ class BookingCalendar extends HTMLElement {
         }
       });
 
-      // Filter: From date change
       fromDateEl.addEventListener('change', () => {
         if (fromDateEl.value) {
           toDateEl.removeAttribute('disabled');
@@ -167,7 +191,6 @@ class BookingCalendar extends HTMLElement {
         }
       });
 
-      // Apply filters on button click
       this.querySelector('#applyFilters').addEventListener('click', () => {
         applyFilters();
       });

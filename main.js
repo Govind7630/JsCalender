@@ -1,9 +1,4 @@
 class BookingCalendar extends HTMLElement {
-  formatTime(dateTimeString) {
-    const date = new Date(dateTimeString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
   async getAccessToken() {
     const params = new URLSearchParams();
     params.append("grant_type", "client_credentials");
@@ -12,9 +7,7 @@ class BookingCalendar extends HTMLElement {
 
     const res = await fetch("/o/oauth2/token", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: params
     });
 
@@ -24,28 +17,61 @@ class BookingCalendar extends HTMLElement {
 
   connectedCallback() {
     this.innerHTML = `
-      <div style="padding: 1rem; background: #f5f7fa; border-radius: 8px; margin-bottom: 1rem;">
-        <label style="margin-right: 1rem;">Type:
-          <select id="typeFilter" style="padding: 4px 8px;">
+      <style>
+        .filter-bar {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+          background: #eef1f5;
+          padding: 1rem;
+          border-radius: 10px;
+        }
+        .filter-bar label {
+          font-weight: 500;
+        }
+        .filter-bar select, .filter-bar input {
+          padding: 5px 10px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+        .filter-bar button {
+          padding: 6px 14px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 6px;
+        }
+        #calendar {
+          background: white;
+          border-radius: 10px;
+          padding: 1rem;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+      </style>
+
+      <div class="filter-bar">
+        <label>Type:
+          <select id="typeFilter">
             <option value="">All</option>
           </select>
         </label>
 
-        <label id="resourceFilterWrapper" style="margin-right: 1rem; display:none;">Resource:
-          <select id="resourceFilter" style="padding: 4px 8px;">
+        <label id="resourceLabel" style="display:none;">Resource:
+          <select id="resourceFilter">
             <option value="">All</option>
           </select>
         </label>
 
-        <label style="margin-right: 1rem;">From:
-          <input type="date" id="fromDate" style="padding: 4px 6px;" />
+        <label>From:
+          <input type="date" id="fromDate" />
         </label>
 
-        <label style="margin-right: 1rem;">To:
-          <input type="date" id="toDate" style="padding: 4px 6px;" />
+        <label>To:
+          <input type="date" id="toDate" />
         </label>
 
-        <button id="applyFilters" style="padding: 6px 12px; background-color: #1976d2; color: white; border: none; border-radius: 4px;">Apply Filters</button>
+        <button id="applyFilters">Apply Filters</button>
       </div>
 
       <div id="calendar"></div>
@@ -58,15 +84,11 @@ class BookingCalendar extends HTMLElement {
 
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
-
     script.onload = async () => {
       const token = await this.getAccessToken();
-
       const fetchWithAuth = async (url) => {
         const res = await fetch(url, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
+          headers: { "Authorization": `Bearer ${token}` }
         });
         return res.json();
       };
@@ -74,15 +96,19 @@ class BookingCalendar extends HTMLElement {
       const calendarEl = this.querySelector('#calendar');
       const typeFilter = this.querySelector('#typeFilter');
       const resourceFilter = this.querySelector('#resourceFilter');
-      const resourceFilterWrapper = this.querySelector('#resourceFilterWrapper');
+      const resourceLabel = this.querySelector('#resourceLabel');
       const fromDateEl = this.querySelector('#fromDate');
       const toDateEl = this.querySelector('#toDate');
+
+      const today = new Date().toISOString().split('T')[0];
+      fromDateEl.value = today;
+      fromDateEl.min = today;
+      toDateEl.min = today;
 
       const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
       const typeMap = {};
 
       const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
-
       picklistData.items.forEach(entry => {
         typeMap[entry.key] = entry.name;
         const opt = document.createElement('option');
@@ -91,111 +117,71 @@ class BookingCalendar extends HTMLElement {
         typeFilter.appendChild(opt);
       });
 
-      const allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking'))
-        .items.filter(b => new Date(b.endDateTime) >= new Date());
-
-      const today = new Date().toISOString().split('T')[0];
-      fromDateEl.value = today;
-      fromDateEl.min = today;
-      toDateEl.setAttribute('disabled', 'true');
+      let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         displayEventTime: false,
-        events: [],
-
-        eventContent: function (arg) {
-          const { start, end, resource } = arg.event.extendedProps;
-          const container = document.createElement('div');
-          container.innerHTML = `
-            <div style="font-weight:bold;">${start} → ${end}</div>
-            <div style="font-size: 0.9em; color: #555;">${resource}</div>
-          `;
-          return { domNodes: [container] };
-        }
+        events: []
       });
-
       calendar.render();
 
-      let applyFilters = () => {
+      const refreshCalendar = () => {
         const selectedType = typeFilter.value;
         const selectedResource = resourceFilter.value;
-        const fromDate = fromDateEl.value || today;
+        const fromDate = fromDateEl.value;
         const toDate = toDateEl.value;
 
-        const filtered = allBookings
-          .filter(item => {
-            const res = item.resourceBooking;
-            const start = new Date(item.startDateTime);
-            const end = new Date(item.endDateTime);
+        const filtered = allBookings.filter(b => {
+          const r = b.resourceBooking;
+          const start = new Date(b.startDateTime);
+          const end = new Date(b.endDateTime);
 
-            if (selectedType && res?.type !== selectedType) return false;
-            if (selectedResource && res?.id?.toString() !== selectedResource) return false;
-            if (fromDate && start < new Date(fromDate)) return false;
-            if (toDate && end > new Date(toDate + "T23:59:59")) return false;
+          if (selectedType && r?.type !== selectedType) return false;
+          if (selectedResource && r?.id?.toString() !== selectedResource) return false;
+          if (fromDate && start < new Date(fromDate)) return false;
+          if (toDate && end > new Date(toDate + 'T23:59:59')) return false;
 
-            return true;
-          })
-          .map(item => {
-            const startTime = this.formatTime(item.startDateTime);
-            const endTime = this.formatTime(item.endDateTime);
-            const resourceName = item.resourceBooking?.name || 'Unknown';
-
-            return {
-              title: '',
-              start: item.startDateTime,
-              end: item.endDateTime,
-              extendedProps: {
-                start: startTime,
-                end: endTime,
-                resource: resourceName
-              }
-            };
-          });
+          return true;
+        }).map(b => {
+          return {
+            title: `${b.resourceBooking?.name || 'Booking'}`,
+            start: b.startDateTime,
+            end: b.endDateTime
+          };
+        });
 
         calendar.removeAllEvents();
         calendar.addEventSource(filtered);
       };
 
-      applyFilters = applyFilters.bind(this);
-      applyFilters();
+      refreshCalendar();
 
       typeFilter.addEventListener('change', () => {
         const selectedType = typeFilter.value;
-        resourceFilter.innerHTML = `<option value="">All</option>`;
+        resourceFilter.innerHTML = '<option value="">All</option>';
         if (!selectedType) {
-          resourceFilterWrapper.style.display = 'none';
+          resourceLabel.style.display = 'none';
         } else {
-          const resSet = new Map();
+          const resourceSet = new Map();
           allBookings.forEach(b => {
             const r = b.resourceBooking;
-            if (r?.type === selectedType) resSet.set(r.id, r.name);
+            if (r?.type === selectedType) {
+              resourceSet.set(r.id, r.name);
+            }
           });
-          resSet.forEach((name, id) => {
+          resourceSet.forEach((name, id) => {
             const opt = document.createElement('option');
             opt.value = id;
             opt.textContent = name;
             resourceFilter.appendChild(opt);
           });
-          resourceFilterWrapper.style.display = 'inline-block';
+          resourceLabel.style.display = 'inline-block';
         }
       });
 
-      fromDateEl.addEventListener('change', () => {
-        if (fromDateEl.value) {
-          toDateEl.removeAttribute('disabled');
-          toDateEl.min = fromDateEl.value;
-        } else {
-          toDateEl.value = '';
-          toDateEl.setAttribute('disabled', 'true');
-        }
-      });
-
-      this.querySelector('#applyFilters').addEventListener('click', () => {
-        applyFilters();
-      });
+      this.querySelector('#applyFilters').addEventListener('click', refreshCalendar);
     };
-
     document.body.appendChild(script);
   }
 }

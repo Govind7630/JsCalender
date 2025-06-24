@@ -139,7 +139,7 @@ class BookingCalendar extends HTMLElement {
           const r = b.resourceBooking;
           if (!r) return false;
 
-          const bookingType = (r.type || '').trim();
+          const bookingType = typeof r.type === 'string' ? r.type.trim() : '';
           const bookingResId = (r.id || '').toString();
 
           const start = new Date(b.startDateTime);
@@ -177,7 +177,8 @@ class BookingCalendar extends HTMLElement {
           const resourceSet = new Map();
           allBookings.forEach(b => {
             const r = b.resourceBooking;
-            if (r && r.type?.trim() === selectedType) {
+            const bookingType = typeof r?.type === 'string' ? r.type.trim() : '';
+            if (r && bookingType === selectedType) {
               resourceSet.set(r.id, r.name);
             }
           });

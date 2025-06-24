@@ -110,14 +110,17 @@ class BookingCalendar extends HTMLElement {
 
       const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
       picklistData.items.forEach(entry => {
-        typeMap[entry.key] = entry.name;
-        const opt = document.createElement('option');
-        opt.value = entry.key;
-        opt.textContent = entry.name;
-        typeFilter.appendChild(opt);
+        if (!typeMap[entry.key]) {
+          typeMap[entry.key] = entry.name;
+          const opt = document.createElement('option');
+          opt.value = entry.key;
+          opt.textContent = entry.name;
+          typeFilter.appendChild(opt);
+        }
       });
 
       let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
+      console.log('Bookings loaded:', allBookings);
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -137,8 +140,8 @@ class BookingCalendar extends HTMLElement {
           const start = new Date(b.startDateTime);
           const end = new Date(b.endDateTime);
 
-          if (selectedType && r?.type !== selectedType) return false;
-          if (selectedResource && r?.id?.toString() !== selectedResource) return false;
+          if (selectedType && (!r || r.type !== selectedType)) return false;
+          if (selectedResource && (!r || r.id?.toString() !== selectedResource)) return false;
           if (fromDate && start < new Date(fromDate)) return false;
           if (toDate && end > new Date(toDate + 'T23:59:59')) return false;
 
@@ -151,6 +154,7 @@ class BookingCalendar extends HTMLElement {
           };
         });
 
+        console.log('Filtered events:', filtered);
         calendar.removeAllEvents();
         calendar.addEventSource(filtered);
       };
@@ -166,7 +170,7 @@ class BookingCalendar extends HTMLElement {
           const resourceSet = new Map();
           allBookings.forEach(b => {
             const r = b.resourceBooking;
-            if (r?.type === selectedType) {
+            if (r && r.type === selectedType) {
               resourceSet.set(r.id, r.name);
             }
           });

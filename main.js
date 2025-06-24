@@ -130,20 +130,27 @@ class BookingCalendar extends HTMLElement {
       calendar.render();
 
       const refreshCalendar = () => {
-        const selectedType = typeFilter.value;
-        const selectedResource = resourceFilter.value;
+        const selectedType = typeFilter.value.trim();
+        const selectedResource = resourceFilter.value.trim();
         const fromDate = fromDateEl.value;
         const toDate = toDateEl.value;
 
         const filtered = allBookings.filter(b => {
           const r = b.resourceBooking;
+          if (!r) return false;
+
+          const bookingType = (r.type || '').trim();
+          const bookingResId = (r.id || '').toString();
+
           const start = new Date(b.startDateTime);
           const end = new Date(b.endDateTime);
+          const from = fromDate ? new Date(fromDate + 'T00:00:00') : null;
+          const to = toDate ? new Date(toDate + 'T23:59:59') : null;
 
-          if (selectedType && (!r || r.type !== selectedType)) return false;
-          if (selectedResource && (!r || r.id?.toString() !== selectedResource)) return false;
-          if (fromDate && start < new Date(fromDate)) return false;
-          if (toDate && end > new Date(toDate + 'T23:59:59')) return false;
+          if (selectedType && bookingType !== selectedType) return false;
+          if (selectedResource && bookingResId !== selectedResource) return false;
+          if (from && start < from) return false;
+          if (to && end > to) return false;
 
           return true;
         }).map(b => {
@@ -162,7 +169,7 @@ class BookingCalendar extends HTMLElement {
       refreshCalendar();
 
       typeFilter.addEventListener('change', () => {
-        const selectedType = typeFilter.value;
+        const selectedType = typeFilter.value.trim();
         resourceFilter.innerHTML = '<option value="">All</option>';
         if (!selectedType) {
           resourceLabel.style.display = 'none';
@@ -170,7 +177,7 @@ class BookingCalendar extends HTMLElement {
           const resourceSet = new Map();
           allBookings.forEach(b => {
             const r = b.resourceBooking;
-            if (r && r.type === selectedType) {
+            if (r && r.type?.trim() === selectedType) {
               resourceSet.set(r.id, r.name);
             }
           });

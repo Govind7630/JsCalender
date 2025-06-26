@@ -110,15 +110,21 @@ class BookingCalendar extends HTMLElement {
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().split('T')[0];
 
-      const settingData = await fetchWithAuth('/o/c/booking-setting/resourcetype');
+      const settingData = await fetchWithAuth('/o/c/bookingsettings');
       let maxAdvance = 0;
       const typeColorMap = {};
+
       settingData.items?.forEach(item => {
-        if (item.MaxAdvanceBookingTime > maxAdvance) {
-          maxAdvance = item.MaxAdvanceBookingTime;
+        const typeKey = item.resourceType; // ✅ direct access, no `.key`
+        const color = item.color;
+        const advance = item.maxAdvanceBookingTime;
+
+        if (advance > maxAdvance) {
+          maxAdvance = advance;
         }
-        if (item.resourceType && item.color) {
-          typeColorMap[item.resourceType] = item.color;
+
+        if (typeKey && color) {
+          typeColorMap[typeKey] = color;
         }
       });
 

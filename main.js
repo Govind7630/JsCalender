@@ -180,7 +180,7 @@ class BookingCalendar extends HTMLElement {
           const r = b.resourceBooking;
           if (!r) return false;
 
-          const bookingTypeKey = r.type?.key?.trim?.() || '';
+          const bookingTypeKey = r.type?.trim?.() || '';
           const bookingResId = (r.id || '').toString();
 
           const start = new Date(b.startDateTime);
@@ -195,7 +195,7 @@ class BookingCalendar extends HTMLElement {
 
           return true;
         }).map(b => {
-          const typeKey = b.resourceBooking?.type?.key;
+          const typeKey = b.resourceBooking?.type;
           const color = typeColorMap[typeKey] || '#999';
           return {
             title: `${b.resourceBooking?.name || 'Booking'}`,
@@ -221,7 +221,7 @@ class BookingCalendar extends HTMLElement {
           const resourceSet = new Map();
           allBookings.forEach(b => {
             const r = b.resourceBooking;
-            if (r?.type?.key === selectedType) {
+            if (r?.type === selectedType) {
               resourceSet.set(r.id, r.name);
             }
           });

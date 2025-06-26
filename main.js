@@ -48,27 +48,6 @@ class BookingCalendar extends HTMLElement {
           padding: 1rem;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .fc .fc-toolbar-title {
-          font-size: 1.5rem;
-          font-weight: 600;
-          color: #111827;
-        }
-        .fc-button {
-          background-color: #f3f4f6 !important;
-          border: none !important;
-          color: #1f2937 !important;
-          padding: 5px 10px;
-          border-radius: 5px !important;
-        }
-        .fc-button-active {
-          background-color: #2563eb !important;
-          color: #ffffff !important;
-        }
-        .fc-event {
-          border-radius: 6px !important;
-          padding: 2px 4px !important;
-          font-size: 0.85rem;
-        }
       </style>
 
       <div class="filter-bar">
@@ -93,6 +72,12 @@ class BookingCalendar extends HTMLElement {
         </label>
 
         <button id="applyFilters">Apply Filters</button>
+      </div>
+
+      <div class="view-toggle" style="margin-bottom: 1rem;">
+        <button class="view-btn" data-view="dayGridMonth">Month</button>
+        <button class="view-btn" data-view="timeGridWeek">Week</button>
+        <button class="view-btn" data-view="timeGridDay">Day</button>
       </div>
 
       <div id="calendar"></div>
@@ -161,11 +146,21 @@ class BookingCalendar extends HTMLElement {
       let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
 
       const colorMap = {};
+      const colors = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#facc15', '#06b6d4'];
       let colorIndex = 0;
-      const colors = ['#3b82f6', '#10b981', '#f97316', '#8b5cf6', '#ec4899', '#facc15', '#06b6d4'];
+
+      const getColorForType = (typeKey) => {
+        if (!typeKey) return '#999';
+        if (!colorMap[typeKey]) {
+          colorMap[typeKey] = colors[colorIndex % colors.length];
+          colorIndex++;
+        }
+        return colorMap[typeKey];
+      };
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        headerToolbar: false,
         displayEventTime: false,
         events: [],
         dateClick: function(info) {
@@ -210,15 +205,11 @@ class BookingCalendar extends HTMLElement {
           return true;
         }).map(b => {
           const typeKey = b.resourceBooking?.type?.key;
-          if (!colorMap[typeKey]) {
-            colorMap[typeKey] = colors[colorIndex % colors.length];
-            colorIndex++;
-          }
           return {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
-            backgroundColor: colorMap[typeKey],
+            backgroundColor: getColorForType(typeKey),
             borderColor: 'transparent'
           };
         });
@@ -253,6 +244,12 @@ class BookingCalendar extends HTMLElement {
       });
 
       this.querySelector('#applyFilters').addEventListener('click', refreshCalendar);
+
+      this.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          calendar.changeView(btn.dataset.view);
+        });
+      });
     };
 
     document.body.appendChild(script);

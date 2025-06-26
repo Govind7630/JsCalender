@@ -48,6 +48,15 @@ class BookingCalendar extends HTMLElement {
           padding: 1rem;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+        .fc-disabled-day {
+          background-color: #f0f0f0 !important;
+          pointer-events: none;
+          color: #999 !important;
+          cursor: not-allowed;
+        }
+        .fc-disabled-day .fc-daygrid-day-number {
+          opacity: 1 !important;
+        }
       </style>
 
       <div class="filter-bar">
@@ -149,9 +158,7 @@ class BookingCalendar extends HTMLElement {
         dayCellDidMount: (info) => {
           const date = info.date;
           if (date < today || date > maxDate) {
-            info.el.style.backgroundColor = '#f5f5f5';
-            info.el.style.pointerEvents = 'none';
-            info.el.style.opacity = '0.5';
+            info.el.classList.add('fc-disabled-day');
           }
         }
       });

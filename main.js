@@ -55,7 +55,7 @@ class BookingCalendar extends HTMLElement {
           cursor: not-allowed;
         }
         .fc-disabled-day .fc-daygrid-day-number {
-          opacity: 1 !important;
+          opacity: 0.5 !important;
         }
       </style>
 
@@ -158,8 +158,17 @@ class BookingCalendar extends HTMLElement {
         dayCellDidMount: (info) => {
           const date = new Date(info.date);
           date.setHours(0, 0, 0, 0);
-          if (date < today || date > maxDate) {
+          const isDisabled = date < today || date > maxDate;
+
+          if (isDisabled) {
             info.el.classList.add('fc-disabled-day');
+
+            if (!info.el.querySelector('.fc-daygrid-day-number')) {
+              const dayNum = document.createElement('div');
+              dayNum.className = 'fc-daygrid-day-number';
+              dayNum.innerText = date.getDate();
+              info.el.appendChild(dayNum);
+            }
           }
         },
         dateClick: function(info) {

@@ -48,15 +48,6 @@ class BookingCalendar extends HTMLElement {
           padding: 1rem;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .fc-disabled-day {
-          background-color: #f0f0f0 !important;
-          pointer-events: none;
-          color: #999 !important;
-          cursor: not-allowed;
-        }
-        .fc-disabled-day .fc-daygrid-day-number {
-          opacity: 1 !important;
-        }
       </style>
 
       <div class="filter-bar">
@@ -152,18 +143,16 @@ class BookingCalendar extends HTMLElement {
         initialView: 'dayGridMonth',
         displayEventTime: false,
         events: [],
-        dayCellDidMount: (info) => {
-          const cellDate = new Date(info.date);
-          cellDate.setHours(0, 0, 0, 0);
-          if (cellDate < today || cellDate > maxDate) {
-            info.el.classList.add('fc-disabled-day');
-          }
-        },
         dateClick: function(info) {
           const clickedDate = new Date(info.dateStr);
           clickedDate.setHours(0, 0, 0, 0);
-          if (clickedDate >= today && clickedDate <= maxDate) {
-            alert(`Open modal here for date: ${info.dateStr}`);
+
+          if (clickedDate < today) {
+            alert("❌ You can't book in the past.");
+          } else if (clickedDate > maxDate) {
+            alert("❌ You can't book beyond the allowed booking window.");
+          } else {
+            alert(`✅ Open booking modal for: ${info.dateStr}`);
           }
         }
       });

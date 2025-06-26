@@ -50,9 +50,12 @@ class BookingCalendar extends HTMLElement {
         }
         .fc-disabled-day {
           background-color: #f0f0f0 !important;
-          color: #999 !important;
           pointer-events: none;
+          color: #999 !important;
           cursor: not-allowed;
+        }
+        .fc-disabled-day .fc-daygrid-day-number {
+          opacity: 1 !important;
         }
       </style>
 
@@ -120,6 +123,7 @@ class BookingCalendar extends HTMLElement {
 
       const maxDate = new Date(today);
       maxDate.setDate(today.getDate() + maxAdvance);
+      maxDate.setHours(0, 0, 0, 0);
       const maxDateStr = maxDate.toISOString().split('T')[0];
 
       fromDateEl.value = todayStr;
@@ -149,17 +153,18 @@ class BookingCalendar extends HTMLElement {
         displayEventTime: false,
         events: [],
         dayCellDidMount: (info) => {
-          const date = new Date(info.date);
-          date.setHours(0, 0, 0, 0);
-          if (date < today || date > maxDate) {
+          const cellDate = new Date(info.date);
+          cellDate.setHours(0, 0, 0, 0);
+          if (cellDate < today || cellDate > maxDate) {
             info.el.classList.add('fc-disabled-day');
           }
         },
         dateClick: (info) => {
-          const clickedDate = new Date(info.dateStr);
+          const clicked = info.dateStr;
+          const clickedDate = new Date(clicked);
           clickedDate.setHours(0, 0, 0, 0);
           if (clickedDate >= today && clickedDate <= maxDate) {
-            alert(`Open modal here for date: ${info.dateStr}`);
+            alert(`Open modal here for date: ${clicked}`);
           }
         }
       });

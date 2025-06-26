@@ -159,12 +159,11 @@ class BookingCalendar extends HTMLElement {
             info.el.classList.add('fc-disabled-day');
           }
         },
-        dateClick: (info) => {
-          const clicked = info.dateStr;
-          const clickedDate = new Date(clicked);
+        dateClick: function(info) {
+          const clickedDate = new Date(info.dateStr);
           clickedDate.setHours(0, 0, 0, 0);
           if (clickedDate >= today && clickedDate <= maxDate) {
-            alert(`Open modal here for date: ${clicked}`);
+            alert(`Open modal here for date: ${info.dateStr}`);
           }
         }
       });

@@ -100,10 +100,26 @@ class BookingCalendar extends HTMLElement {
       const fromDateEl = this.querySelector('#fromDate');
       const toDateEl = this.querySelector('#toDate');
 
-      const today = new Date().toISOString().split('T')[0];
-      fromDateEl.value = today;
-      fromDateEl.min = today;
-      toDateEl.min = today;
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+
+      const settingData = await fetchWithAuth('/o/c/booking-setting/resourcetype');
+      let maxAdvance = 0;
+      settingData.items?.forEach(item => {
+        if (item.MaxAdvanceBookingTime > maxAdvance) {
+          maxAdvance = item.MaxAdvanceBookingTime;
+        }
+      });
+
+      const maxDate = new Date(today);
+      maxDate.setDate(today.getDate() + maxAdvance);
+      const maxDateStr = maxDate.toISOString().split('T')[0];
+
+      fromDateEl.value = todayStr;
+      fromDateEl.min = todayStr;
+      fromDateEl.max = maxDateStr;
+      toDateEl.min = todayStr;
+      toDateEl.max = maxDateStr;
 
       const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
       const typeMap = {};
@@ -125,7 +141,11 @@ class BookingCalendar extends HTMLElement {
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         displayEventTime: false,
-        events: []
+        events: [],
+        validRange: {
+          start: todayStr,
+          end: maxDateStr
+        }
       });
       calendar.render();
 

@@ -49,9 +49,10 @@ class BookingCalendar extends HTMLElement {
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .fc-disabled-day {
-          background-color: #f9f9f9 !important;
+          background-color: #f0f0f0 !important;
           pointer-events: none;
-          opacity: 0.5;
+          color: #999 !important;
+          cursor: not-allowed;
         }
         .fc-disabled-day .fc-daygrid-day-number {
           opacity: 1 !important;
@@ -64,17 +65,21 @@ class BookingCalendar extends HTMLElement {
             <option value="">All</option>
           </select>
         </label>
+
         <label id="resourceLabel" style="display:none;">Resource:
           <select id="resourceFilter">
             <option value="">All</option>
           </select>
         </label>
+
         <label>From:
           <input type="date" id="fromDate" />
         </label>
+
         <label>To:
           <input type="date" id="toDate" />
         </label>
+
         <button id="applyFilters">Apply Filters</button>
       </div>
 
@@ -105,9 +110,9 @@ class BookingCalendar extends HTMLElement {
       const toDateEl = this.querySelector('#toDate');
 
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().split('T')[0];
 
-      // Fetch MaxAdvanceBookingTime
       const settingData = await fetchWithAuth('/o/c/booking-setting/resourcetype');
       let maxAdvance = 0;
       settingData.items?.forEach(item => {
@@ -120,7 +125,6 @@ class BookingCalendar extends HTMLElement {
       maxDate.setDate(today.getDate() + maxAdvance);
       const maxDateStr = maxDate.toISOString().split('T')[0];
 
-      // Set date pickers
       fromDateEl.value = todayStr;
       fromDateEl.min = todayStr;
       fromDateEl.max = maxDateStr;
@@ -141,7 +145,7 @@ class BookingCalendar extends HTMLElement {
         }
       });
 
-      const allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
+      let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -152,12 +156,21 @@ class BookingCalendar extends HTMLElement {
           end: maxDateStr
         },
         dayCellDidMount: (info) => {
-          const date = info.date;
+          const date = new Date(info.date);
+          date.setHours(0, 0, 0, 0);
           if (date < today || date > maxDate) {
             info.el.classList.add('fc-disabled-day');
           }
+        },
+        dateClick: function(info) {
+          const clickedDate = new Date(info.dateStr);
+          clickedDate.setHours(0, 0, 0, 0);
+          if (clickedDate >= today && clickedDate <= maxDate) {
+            alert(`Open modal here for date: ${info.dateStr}`);
+          }
         }
       });
+
       calendar.render();
 
       const refreshCalendar = () => {

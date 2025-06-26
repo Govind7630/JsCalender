@@ -49,14 +49,10 @@ class BookingCalendar extends HTMLElement {
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .fc-disabled-day {
-          background-color: #f5f5f5 !important;
+          background-color: #f0f0f0 !important;
+          color: #999 !important;
           pointer-events: none;
-          color: #aaa !important;
           cursor: not-allowed;
-        }
-        .fc-disabled-day .fc-daygrid-day-number {
-          opacity: 0.6 !important;
-          font-weight: 500;
         }
       </style>
 
@@ -152,28 +148,14 @@ class BookingCalendar extends HTMLElement {
         initialView: 'dayGridMonth',
         displayEventTime: false,
         events: [],
-        validRange: {
-          start: todayStr,
-          end: maxDateStr
-        },
         dayCellDidMount: (info) => {
           const date = new Date(info.date);
           date.setHours(0, 0, 0, 0);
-          const isDisabled = date < today || date > maxDate;
-
-          if (isDisabled) {
+          if (date < today || date > maxDate) {
             info.el.classList.add('fc-disabled-day');
-
-            // Manually add number if not present
-            if (!info.el.querySelector('.fc-daygrid-day-number')) {
-              const dayNumberEl = document.createElement('div');
-              dayNumberEl.className = 'fc-daygrid-day-number';
-              dayNumberEl.textContent = date.getDate();
-              info.el.appendChild(dayNumberEl);
-            }
           }
         },
-        dateClick: function(info) {
+        dateClick: (info) => {
           const clickedDate = new Date(info.dateStr);
           clickedDate.setHours(0, 0, 0, 0);
           if (clickedDate >= today && clickedDate <= maxDate) {

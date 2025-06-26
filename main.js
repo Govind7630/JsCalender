@@ -145,6 +145,14 @@ class BookingCalendar extends HTMLElement {
         validRange: {
           start: todayStr,
           end: maxDateStr
+        },
+        dayCellDidMount: (info) => {
+          const date = info.date;
+          if (date < today || date > maxDate) {
+            info.el.style.backgroundColor = '#f5f5f5';
+            info.el.style.pointerEvents = 'none';
+            info.el.style.opacity = '0.5';
+          }
         }
       });
       calendar.render();

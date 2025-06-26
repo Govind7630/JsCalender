@@ -17,120 +17,246 @@ class BookingCalendar extends HTMLElement {
 
   connectedCallback() {
     this.innerHTML = `
-      <div class="p-4 bg-gray-50 rounded-xl shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold text-gray-800">Booking Calendar</h2>
-          <div class="space-x-2">
-            <button data-view="dayGridMonth" class="view-btn bg-blue-500 text-white px-3 py-1 rounded-md text-sm">Month</button>
-            <button data-view="timeGridWeek" class="view-btn bg-gray-200 text-gray-800 px-3 py-1 rounded-md text-sm">Week</button>
-            <button data-view="timeGridDay" class="view-btn bg-gray-200 text-gray-800 px-3 py-1 rounded-md text-sm">Day</button>
-          </div>
-        </div>
-        <div id="calendar"></div>
+      <style>
+        .filter-bar {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+          background: #eef1f5;
+          padding: 1rem;
+          border-radius: 10px;
+        }
+        .filter-bar label {
+          font-weight: 500;
+        }
+        .filter-bar select, .filter-bar input {
+          padding: 5px 10px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+        .filter-bar button {
+          padding: 6px 14px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 6px;
+        }
+        #calendar {
+          background: white;
+          border-radius: 10px;
+          padding: 1rem;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .fc .fc-toolbar-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #111827;
+        }
+        .fc-button {
+          background-color: #f3f4f6 !important;
+          border: none !important;
+          color: #1f2937 !important;
+          padding: 5px 10px;
+          border-radius: 5px !important;
+        }
+        .fc-button-active {
+          background-color: #2563eb !important;
+          color: #ffffff !important;
+        }
+        .fc-event {
+          border-radius: 6px !important;
+          padding: 2px 4px !important;
+          font-size: 0.85rem;
+        }
+      </style>
+
+      <div class="filter-bar">
+        <label>Type:
+          <select id="typeFilter">
+            <option value="">All</option>
+          </select>
+        </label>
+
+        <label id="resourceLabel" style="display:none;">Resource:
+          <select id="resourceFilter">
+            <option value="">All</option>
+          </select>
+        </label>
+
+        <label>From:
+          <input type="date" id="fromDate" />
+        </label>
+
+        <label>To:
+          <input type="date" id="toDate" />
+        </label>
+
+        <button id="applyFilters">Apply Filters</button>
       </div>
+
+      <div id="calendar"></div>
     `;
 
-    const loadCSS = (href) => {
-      return new Promise((resolve) => {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
-        link.href = href;
-        link.onload = resolve;
-        document.head.appendChild(link);
-      });
-    };
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.css';
+    document.head.appendChild(link);
 
-    const loadScript = (src) => {
-      return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.src = src;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    };
-
-    (async () => {
-      await loadCSS("https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css");
-      await loadCSS("https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.css");
-      await loadScript("https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js");
-
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
+    script.onload = async () => {
       const token = await this.getAccessToken();
       const fetchWithAuth = async (url) => {
         const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { "Authorization": `Bearer ${token}` }
         });
         return res.json();
       };
 
+      const calendarEl = this.querySelector('#calendar');
+      const typeFilter = this.querySelector('#typeFilter');
+      const resourceFilter = this.querySelector('#resourceFilter');
+      const resourceLabel = this.querySelector('#resourceLabel');
+      const fromDateEl = this.querySelector('#fromDate');
+      const toDateEl = this.querySelector('#toDate');
+
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString().split('T')[0];
 
-      const settings = await fetchWithAuth("/o/c/booking-setting/resourcetype");
-      const maxAdvanceDays = Math.max(...settings.items.map(i => i.MaxAdvanceBookingTime || 0));
-
-      const maxAllowedDate = new Date(today);
-      maxAllowedDate.setDate(today.getDate() + maxAdvanceDays);
-
-      const bookings = (await fetchWithAuth("/o/c/bookings?nestedFields=resourceBooking")).items;
-
-      const colorMap = {};
-      let colorIndex = 0;
-      const colors = ["#4f46e5", "#16a34a", "#dc2626", "#7c3aed", "#f59e0b", "#0ea5e9", "#d946ef", "#14b8a6"];
-
-      bookings.forEach(b => {
-        const key = b.resourceBooking?.type?.key;
-        if (key && !colorMap[key]) {
-          colorMap[key] = colors[colorIndex % colors.length];
-          colorIndex++;
+      const settingData = await fetchWithAuth('/o/c/booking-setting/resourcetype');
+      let maxAdvance = 0;
+      settingData.items?.forEach(item => {
+        if (item.MaxAdvanceBookingTime > maxAdvance) {
+          maxAdvance = item.MaxAdvanceBookingTime;
         }
       });
 
-      const events = bookings.map(b => {
-        const r = b.resourceBooking;
-        const typeKey = r?.type?.key;
-        return {
-          title: r?.name || "Booking",
-          start: b.startDateTime,
-          end: b.endDateTime,
-          backgroundColor: colorMap[typeKey] || "#64748b", // fallback gray
-          borderColor: "transparent"
-        };
+      const maxDate = new Date(today);
+      maxDate.setDate(today.getDate() + maxAdvance);
+      maxDate.setHours(0, 0, 0, 0);
+      const maxDateStr = maxDate.toISOString().split('T')[0];
+
+      fromDateEl.value = todayStr;
+      fromDateEl.min = todayStr;
+      fromDateEl.max = maxDateStr;
+      toDateEl.min = todayStr;
+      toDateEl.max = maxDateStr;
+
+      const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
+      const typeMap = {};
+
+      const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
+      picklistData.items.forEach(entry => {
+        if (!typeMap[entry.key]) {
+          typeMap[entry.key] = entry.name;
+          const opt = document.createElement('option');
+          opt.value = entry.key;
+          opt.textContent = entry.name;
+          typeFilter.appendChild(opt);
+        }
       });
 
-      const calendar = new FullCalendar.Calendar(this.querySelector("#calendar"), {
-        initialView: "dayGridMonth",
-        height: "auto",
-        selectable: true,
-        headerToolbar: false,
-        events: events,
-        eventDisplay: "block",
-        dayMaxEventRows: 3,
-        dateClick: (info) => {
-          const date = new Date(info.dateStr);
-          date.setHours(0, 0, 0, 0);
+      let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
 
-          if (date < today) {
-            alert("❌ You can’t book in the past.");
-          } else if (date > maxAllowedDate) {
-            alert("❌ You can’t book beyond the allowed range.");
+      const colorMap = {};
+      let colorIndex = 0;
+      const colors = ['#3b82f6', '#10b981', '#f97316', '#8b5cf6', '#ec4899', '#facc15', '#06b6d4'];
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        displayEventTime: false,
+        events: [],
+        dateClick: function(info) {
+          const clickedDate = new Date(info.dateStr);
+          clickedDate.setHours(0, 0, 0, 0);
+
+          if (clickedDate < today) {
+            alert("❌ You can't book in the past.");
+          } else if (clickedDate > maxDate) {
+            alert("❌ You can't book beyond the allowed booking window.");
           } else {
-            alert(`✅ Booking modal would open for: ${info.dateStr}`);
+            alert(`✅ Open booking modal for: ${info.dateStr}`);
           }
         }
       });
 
       calendar.render();
 
-      // View toggle
-      this.querySelectorAll(".view-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          this.querySelectorAll(".view-btn").forEach(b => b.classList.remove("bg-blue-500", "text-white"));
-          btn.classList.add("bg-blue-500", "text-white");
-          calendar.changeView(btn.dataset.view);
+      const refreshCalendar = () => {
+        const selectedType = typeFilter.value.trim();
+        const selectedResource = resourceFilter.value.trim();
+        const fromDate = fromDateEl.value;
+        const toDate = toDateEl.value;
+
+        const filtered = allBookings.filter(b => {
+          const r = b.resourceBooking;
+          if (!r) return false;
+
+          const bookingTypeKey = r.type?.key?.trim?.() || '';
+          const bookingResId = (r.id || '').toString();
+
+          const start = new Date(b.startDateTime);
+          const end = new Date(b.endDateTime);
+          const from = fromDate ? new Date(fromDate + 'T00:00:00') : null;
+          const to = toDate ? new Date(toDate + 'T23:59:59') : null;
+
+          if (selectedType && bookingTypeKey !== selectedType) return false;
+          if (selectedResource && bookingResId !== selectedResource) return false;
+          if (from && end < from) return false;
+          if (to && start > to) return false;
+
+          return true;
+        }).map(b => {
+          const typeKey = b.resourceBooking?.type?.key;
+          if (!colorMap[typeKey]) {
+            colorMap[typeKey] = colors[colorIndex % colors.length];
+            colorIndex++;
+          }
+          return {
+            title: `${b.resourceBooking?.name || 'Booking'}`,
+            start: b.startDateTime,
+            end: b.endDateTime,
+            backgroundColor: colorMap[typeKey],
+            borderColor: 'transparent'
+          };
         });
+
+        calendar.removeAllEvents();
+        calendar.addEventSource(filtered);
+      };
+
+      refreshCalendar();
+
+      typeFilter.addEventListener('change', () => {
+        const selectedType = typeFilter.value.trim();
+        resourceFilter.innerHTML = '<option value="">All</option>';
+        if (!selectedType) {
+          resourceLabel.style.display = 'none';
+        } else {
+          const resourceSet = new Map();
+          allBookings.forEach(b => {
+            const r = b.resourceBooking;
+            if (r?.type?.key === selectedType) {
+              resourceSet.set(r.id, r.name);
+            }
+          });
+          resourceSet.forEach((name, id) => {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = name;
+            resourceFilter.appendChild(opt);
+          });
+          resourceLabel.style.display = 'inline-block';
+        }
       });
-    })();
+
+      this.querySelector('#applyFilters').addEventListener('click', refreshCalendar);
+    };
+
+    document.body.appendChild(script);
   }
 }
 
-customElements.define("booking-calendar", BookingCalendar);
+customElements.define('booking-calendar', BookingCalendar);

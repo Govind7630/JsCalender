@@ -112,9 +112,13 @@ class BookingCalendar extends HTMLElement {
 
       const settingData = await fetchWithAuth('/o/c/booking-setting/resourcetype');
       let maxAdvance = 0;
+      const typeColorMap = {};
       settingData.items?.forEach(item => {
         if (item.MaxAdvanceBookingTime > maxAdvance) {
           maxAdvance = item.MaxAdvanceBookingTime;
+        }
+        if (item.resourceType && item.color) {
+          typeColorMap[item.resourceType] = item.color;
         }
       });
 
@@ -144,19 +148,6 @@ class BookingCalendar extends HTMLElement {
       });
 
       let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
-
-      const colorMap = {};
-      const colors = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ec4899', '#facc15', '#06b6d4'];
-      let colorIndex = 0;
-
-      const getColorForType = (typeKey) => {
-        if (!typeKey) return '#999';
-        if (!colorMap[typeKey]) {
-          colorMap[typeKey] = colors[colorIndex % colors.length];
-          colorIndex++;
-        }
-        return colorMap[typeKey];
-      };
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -205,11 +196,12 @@ class BookingCalendar extends HTMLElement {
           return true;
         }).map(b => {
           const typeKey = b.resourceBooking?.type?.key;
+          const color = typeColorMap[typeKey] || '#999';
           return {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
-            backgroundColor: getColorForType(typeKey),
+            backgroundColor: color,
             borderColor: 'transparent'
           };
         });

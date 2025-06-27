@@ -264,121 +264,174 @@ class BookingCalendar extends HTMLElement {
           background: var(--primary-gradient);
         }
 
-        /* FullCalendar Custom Styling */
-        .fc {
+        /* Force override FullCalendar table styles */
+        #calendar table {
+          border-collapse: separate !important;
+          border-spacing: 4px !important;
+        }
+
+        #calendar .fc-scrollgrid-section-header > * {
+          background: none !important;
+        }
+
+        #calendar .fc-scrollgrid-section-body {
+          border: none !important;
+        }
+
+        #calendar .fc-scrollgrid-section-body table {
+          border: none !important;
+        }
+
+        #calendar tbody tr td {
+          border: none !important;
+        }
+
+        #calendar .fc-daygrid-body {
+          border: none !important;
+        }
+
+        #calendar .fc-scrollgrid {
+          border: none !important;
+        }
+
+        /* FullCalendar Custom Styling - High Specificity */
+        #calendar .fc {
           font-family: 'Inter', sans-serif !important;
         }
 
-        .fc-theme-standard .fc-scrollgrid {
+        #calendar .fc-theme-standard .fc-scrollgrid {
           border: none !important;
+          border-radius: 15px !important;
+          overflow: hidden !important;
         }
 
-        .fc-col-header-cell {
+        #calendar .fc-col-header-cell {
           background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
           color: white !important;
-          font-weight: 600 !important;
+          font-weight: 700 !important;
           text-transform: uppercase !important;
-          letter-spacing: 1px !important;
-          padding: 1rem 0.5rem !important;
+          letter-spacing: 1.5px !important;
+          padding: 1.2rem 0.8rem !important;
           border: none !important;
           position: relative !important;
+          font-size: 0.9rem !important;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
         }
 
-        .fc-col-header-cell::after {
+        #calendar .fc-col-header-cell::after {
           content: '';
           position: absolute;
           bottom: 0;
           left: 50%;
-          width: 30px;
-          height: 3px;
-          background: rgba(255, 255, 255, 0.6);
+          width: 40px;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.8);
           transform: translateX(-50%);
-          border-radius: 2px;
+          border-radius: 3px;
         }
 
-        .fc-daygrid-day {
+        #calendar .fc-col-header-cell:hover::after {
+          width: 60px;
+          background: white;
+          transition: all 0.3s ease;
+        }
+
+        #calendar .fc-daygrid-day {
           background: white !important;
-          border: 1px solid #e8f4f8 !important;
-          transition: var(--transition) !important;
+          border: 2px solid #f0f8ff !important;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
           position: relative !important;
+          cursor: pointer !important;
+          min-height: 120px !important;
         }
 
-        .fc-daygrid-day:hover {
+        #calendar .fc-daygrid-day:hover {
           background: linear-gradient(135deg, #f8fbff 0%, #e8f4f8 100%) !important;
-          transform: scale(1.02) !important;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+          transform: translateY(-4px) scale(1.02) !important;
+          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.15) !important;
           z-index: 10 !important;
+          border-color: #667eea !important;
         }
 
-        .fc-daygrid-day-number {
+        #calendar .fc-daygrid-day-number {
           color: #333 !important;
           text-decoration: none !important;
-          font-weight: 600 !important;
-          font-size: 1rem !important;
-          padding: 8px !important;
+          font-weight: 700 !important;
+          font-size: 1.1rem !important;
+          padding: 10px !important;
           border-radius: 50% !important;
-          transition: var(--transition) !important;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
           position: relative !important;
           z-index: 2 !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 40px !important;
+          height: 40px !important;
+          margin: 8px !important;
         }
 
-        .fc-daygrid-day-number:hover {
+        #calendar .fc-daygrid-day-number:hover {
           background: var(--primary-gradient) !important;
           color: white !important;
-          transform: scale(1.2) !important;
-          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+          transform: scale(1.3) rotate(5deg) !important;
+          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
         }
 
-        .fc-day-today {
-          background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%) !important;
-          border: 2px solid #667eea !important;
+        #calendar .fc-day-today {
+          background: linear-gradient(135deg, #667eea30 0%, #764ba230 100%) !important;
+          border: 3px solid #667eea !important;
+          box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
         }
 
-        .fc-day-today .fc-daygrid-day-number {
+        #calendar .fc-day-today .fc-daygrid-day-number {
           background: var(--primary-gradient) !important;
           color: white !important;
-          font-weight: 700 !important;
+          font-weight: 800 !important;
           animation: pulse 2s infinite !important;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6) !important;
         }
 
-        .fc-event {
+        #calendar .fc-event {
           border: none !important;
-          border-radius: 8px !important;
-          padding: 4px 8px !important;
-          margin: 2px !important;
-          font-weight: 500 !important;
-          font-size: 0.85rem !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-          transition: var(--transition) !important;
+          border-radius: 12px !important;
+          padding: 6px 12px !important;
+          margin: 3px !important;
+          font-weight: 600 !important;
+          font-size: 0.9rem !important;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
           cursor: pointer !important;
           position: relative !important;
           overflow: hidden !important;
+          backdrop-filter: blur(10px) !important;
         }
 
-        .fc-event::before {
+        #calendar .fc-event::before {
           content: '';
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-          transition: left 0.3s;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          transition: left 0.5s;
         }
 
-        .fc-event:hover::before {
+        #calendar .fc-event:hover::before {
           left: 100%;
         }
 
-        .fc-event:hover {
-          transform: translateY(-2px) scale(1.05) !important;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
+        #calendar .fc-event:hover {
+          transform: translateY(-3px) scale(1.08) !important;
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3) !important;
           z-index: 100 !important;
         }
 
-        .fc-event-title {
-          font-weight: 600 !important;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+        #calendar .fc-event-title {
+          font-weight: 700 !important;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+          letter-spacing: 0.5px !important;
         }
 
         /* Responsive Design */

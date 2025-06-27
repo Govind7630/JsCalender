@@ -124,7 +124,7 @@ class BookingCalendar extends HTMLElement {
         .filter-bar button {
           padding: 12px 24px;
           background: var(--secondary-gradient);
-          color: white;
+          color: black;
           border: none;
           border-radius: 12px;
           font-weight: 600;
@@ -237,7 +237,7 @@ class BookingCalendar extends HTMLElement {
           border-color: rgba(255, 255, 255, 0.6);
           box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
           animation: pulse 2s infinite;
-          color: #ffffff;
+          color: black;
           text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 

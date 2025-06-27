@@ -192,20 +192,50 @@ class BookingCalendar extends HTMLElement {
           border: 1px solid #007bff !important;
         }
 
+        /* Day number styling - Remove anchor behavior and improve appearance */
         #calendar .fc-daygrid-day-number {
+          color: #212529 !important;
+          text-decoration: none !important;
+          font-weight: 600 !important;
+          font-size: 0.9rem !important;
+          padding: 6px 10px !important;
+          margin: 4px !important;
+          border-radius: 4px !important;
+          transition: all 0.2s ease !important;
+          cursor: pointer !important;
+          display: inline-block !important;
+          min-width: 28px !important;
+          text-align: center !important;
+        }
+
+        /* Hover effect for day numbers */
+        #calendar .fc-daygrid-day-number:hover {
+          background: #f8f9fa !important;
           color: #495057 !important;
           text-decoration: none !important;
-          font-weight: 500 !important;
-          font-size: 0.9rem !important;
-          padding: 4px 8px !important;
-          margin: 4px !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Remove any link styling */
+        #calendar .fc-daygrid-day-number:link,
+        #calendar .fc-daygrid-day-number:visited {
+          color: #212529 !important;
+          text-decoration: none !important;
         }
 
         #calendar .fc-day-today .fc-daygrid-day-number {
           background: #007bff !important;
           color: white !important;
-          border-radius: 3px !important;
-          font-weight: 600 !important;
+          border-radius: 4px !important;
+          font-weight: 700 !important;
+        }
+
+        #calendar .fc-day-today .fc-daygrid-day-number:hover {
+          background: #0056b3 !important;
+          color: white !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3) !important;
         }
 
         #calendar .fc-event {

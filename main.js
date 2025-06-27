@@ -42,6 +42,20 @@ class BookingCalendar extends HTMLElement {
           border: none;
           border-radius: 6px;
         }
+        .view-toggle {
+          margin-bottom: 1rem;
+        }
+        .view-btn {
+          padding: 6px 12px;
+          margin-right: 5px;
+          background-color: #f0f0f0;
+          border: 1px solid #ccc;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+        .view-btn:hover {
+          background-color: #d0d0d0;
+        }
         #calendar {
           background: white;
           border-radius: 10px;
@@ -74,7 +88,7 @@ class BookingCalendar extends HTMLElement {
         <button id="applyFilters">Apply Filters</button>
       </div>
 
-      <div class="view-toggle" style="margin-bottom: 1rem;">
+      <div class="view-toggle">
         <button class="view-btn" data-view="dayGridMonth">Month</button>
         <button class="view-btn" data-view="timeGridWeek">Week</button>
         <button class="view-btn" data-view="timeGridDay">Day</button>
@@ -111,32 +125,19 @@ class BookingCalendar extends HTMLElement {
       const todayStr = today.toISOString().split('T')[0];
 
       const settingData = await fetchWithAuth('/o/c/bookingsettings');
-      console.log("🔍 BookingSettings fetched:", settingData);
-
       let maxAdvance = 0;
       const typeColorMap = {};
 
       settingData.items?.forEach(item => {
-        const typeKey = item.resourceType?.key; // ✅ FIXED: extract key
+        const typeKey = item.resourceType?.key;
         const color = item.color;
         const advance = item.maxAdvanceBookingTime;
-
-        console.log("📦 BookingSetting item:", { typeKey, color, advance });
-
-        if (advance > maxAdvance) {
-          maxAdvance = advance;
-        }
-
-        if (typeKey && color) {
-          typeColorMap[typeKey] = color;
-        }
+        if (advance > maxAdvance) maxAdvance = advance;
+        if (typeKey && color) typeColorMap[typeKey] = color;
       });
-
-      console.log("🎨 Final typeColorMap:", typeColorMap);
 
       const maxDate = new Date(today);
       maxDate.setDate(today.getDate() + maxAdvance);
-      maxDate.setHours(0, 0, 0, 0);
       const maxDateStr = maxDate.toISOString().split('T')[0];
 
       fromDateEl.value = todayStr;
@@ -149,8 +150,6 @@ class BookingCalendar extends HTMLElement {
       const typeMap = {};
 
       const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
-      console.log("📋 Picklist entries:", picklistData.items);
-
       picklistData.items.forEach(entry => {
         if (!typeMap[entry.key]) {
           typeMap[entry.key] = entry.name;
@@ -162,7 +161,6 @@ class BookingCalendar extends HTMLElement {
       });
 
       let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
-      console.log("📅 All Bookings:", allBookings);
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -171,8 +169,6 @@ class BookingCalendar extends HTMLElement {
         events: [],
         dateClick: function(info) {
           const clickedDate = new Date(info.dateStr);
-          clickedDate.setHours(0, 0, 0, 0);
-
           if (clickedDate < today) {
             alert("❌ You can't book in the past.");
           } else if (clickedDate > maxDate) {
@@ -190,6 +186,7 @@ class BookingCalendar extends HTMLElement {
         const selectedResource = resourceFilter.value.trim();
         const fromDate = fromDateEl.value;
         const toDate = toDateEl.value;
+        const viewType = calendar.view.type;
 
         const filtered = allBookings.filter(b => {
           const r = b.resourceBooking;
@@ -213,23 +210,15 @@ class BookingCalendar extends HTMLElement {
           const typeKey = b.resourceBooking?.type?.key;
           const color = typeColorMap[typeKey] || '#999';
 
-          console.log("🎯 Booking:", {
-            id: b.id,
-            resourceName: b.resourceBooking?.name,
-            type: typeKey,
-            color
-          });
-
           return {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
-            allDay: false, // ⬅️ timed event
+            allDay: viewType === 'dayGridMonth',
             backgroundColor: color,
             borderColor: color,
             textColor: '#fff'
           };
-
         });
 
         calendar.removeAllEvents();
@@ -266,6 +255,7 @@ class BookingCalendar extends HTMLElement {
       this.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           calendar.changeView(btn.dataset.view);
+          refreshCalendar();
         });
       });
     };

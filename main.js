@@ -43,24 +43,51 @@ class BookingCalendar extends HTMLElement {
           border-radius: 6px;
         }
         .view-toggle {
+          text-align: center;
           margin-bottom: 1rem;
         }
         .view-btn {
-          padding: 6px 12px;
-          margin-right: 5px;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          border-radius: 6px;
+          width: 36px;
+          height: 36px;
+          line-height: 36px;
+          text-align: center;
+          border-radius: 50%;
+          background-color: #e5f6ef;
+          color: #1f8e63;
+          font-weight: bold;
+          border: none;
+          margin: 0 5px;
           cursor: pointer;
         }
-        .view-btn:hover {
-          background-color: #d0d0d0;
+        .view-btn.active {
+          background-color: #1f8e63;
+          color: white;
+        }
+        .calendar-header {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1rem;
+          font-size: 1.5rem;
+          font-weight: 600;
         }
         #calendar {
           background: white;
           border-radius: 10px;
           padding: 1rem;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .fc-daygrid-day-number {
+          color: black;
+          text-decoration: none;
+        }
+        .fc-daygrid-day-number:hover {
+          background-color: #1f8e63;
+          color: white !important;
+          border-radius: 50%;
+          padding: 2px 6px;
+          text-decoration: none;
         }
       </style>
 
@@ -84,10 +111,13 @@ class BookingCalendar extends HTMLElement {
         <button id="applyFilters">Apply Filters</button>
       </div>
 
-      <div class="view-toggle">
-        <button class="view-btn" data-view="dayGridMonth">Month</button>
-        <button class="view-btn" data-view="timeGridWeek">Week</button>
-        <button class="view-btn" data-view="timeGridDay">Day</button>
+      <div class="calendar-header">
+        <span id="calendarTitle">Loading...</span>
+        <div class="view-toggle">
+          <button class="view-btn" data-view="dayGridMonth">M</button>
+          <button class="view-btn" data-view="timeGridWeek">W</button>
+          <button class="view-btn" data-view="timeGridDay">D</button>
+        </div>
       </div>
 
       <div id="calendar"></div>
@@ -105,6 +135,7 @@ class BookingCalendar extends HTMLElement {
       };
 
       const calendarEl = this.querySelector('#calendar');
+      const calendarTitleEl = this.querySelector('#calendarTitle');
       const typeFilter = this.querySelector('#typeFilter');
       const resourceFilter = this.querySelector('#resourceFilter');
       const resourceLabel = this.querySelector('#resourceLabel');
@@ -158,6 +189,10 @@ class BookingCalendar extends HTMLElement {
         headerToolbar: false,
         displayEventTime: false,
         events: [],
+        datesSet: function(info) {
+          const title = info.view.title;
+          calendarTitleEl.textContent = title;
+        },
         dateClick: function(info) {
           const clickedDate = new Date(info.dateStr);
           if (clickedDate < today) {
@@ -244,8 +279,10 @@ class BookingCalendar extends HTMLElement {
 
       this.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
           calendar.changeView(btn.dataset.view);
-          setTimeout(refreshCalendar, 0); // ensure calendar view updates first
+          setTimeout(refreshCalendar, 0);
         });
       });
     };

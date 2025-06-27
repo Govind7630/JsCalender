@@ -91,12 +91,11 @@ class BookingCalendar extends HTMLElement {
 
         .filter-bar label {
           font-weight: 600;
-          color: #ffffff;
+          color: #333333;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
           font-size: 0.9rem;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         .filter-bar select, 
@@ -179,8 +178,7 @@ class BookingCalendar extends HTMLElement {
         #calendarTitle {
           font-size: 2rem;
           font-weight: 700;
-          color: #ffffff;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+          color: #333333;
         }
 
         .view-toggle {
@@ -197,7 +195,7 @@ class BookingCalendar extends HTMLElement {
           height: 45px;
           border-radius: 12px;
           background: rgba(255, 255, 255, 0.3);
-          color: #ffffff;
+          color: #333333;
           font-weight: 700;
           font-size: 1rem;
           border: 2px solid rgba(255, 255, 255, 0.3);
@@ -208,7 +206,6 @@ class BookingCalendar extends HTMLElement {
           justify-content: center;
           position: relative;
           overflow: hidden;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .view-btn::before {
@@ -232,7 +229,7 @@ class BookingCalendar extends HTMLElement {
         .view-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
-          color: #ffffff;
+          color: #333333;
         }
 
         .view-btn.active {
@@ -374,7 +371,7 @@ class BookingCalendar extends HTMLElement {
 
         #calendar .fc-daygrid-day-number:hover {
           background: var(--primary-gradient) !important;
-          color: white !important;
+          color: #333333 !important;
           transform: scale(1.3) rotate(5deg) !important;
           box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
         }
@@ -401,32 +398,10 @@ class BookingCalendar extends HTMLElement {
           font-weight: 600 !important;
           font-size: 0.9rem !important;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
           cursor: pointer !important;
           position: relative !important;
           overflow: hidden !important;
           backdrop-filter: blur(10px) !important;
-        }
-
-        #calendar .fc-event::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-          transition: left 0.5s;
-        }
-
-        #calendar .fc-event:hover::before {
-          left: 100%;
-        }
-
-        #calendar .fc-event:hover {
-          transform: translateY(-3px) scale(1.08) !important;
-          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3) !important;
-          z-index: 100 !important;
         }
 
         #calendar .fc-event-title {
@@ -607,7 +582,7 @@ class BookingCalendar extends HTMLElement {
         setTimeout(() => {
           notification.style.transform = 'translateX(400px)';
           setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        }, 300);
       };
 
       try {
@@ -718,7 +693,7 @@ class BookingCalendar extends HTMLElement {
               title: `${b.resourceBooking?.name || 'Booking'}`,
               start: b.startDateTime,
               end: b.endDateTime,
-              allDay: viewType === 'dayGridMonth',
+              allDay: false, // Changed to false to allow multi-day events
               backgroundColor: color,
               borderColor: color,
               textColor: '#fff'

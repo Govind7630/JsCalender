@@ -224,12 +224,12 @@ class BookingCalendar extends HTMLElement {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
-            allDay: true,
-            display: 'block',
+            allDay: false, // ⬅️ timed event
             backgroundColor: color,
-            borderColor: 'transparent',
+            borderColor: color,
             textColor: '#fff'
           };
+
         });
 
         calendar.removeAllEvents();

@@ -66,15 +66,11 @@ class BookingCalendar extends HTMLElement {
 
       <div class="filter-bar">
         <label>Type:
-          <select id="typeFilter">
-            <option value="">All</option>
-          </select>
+          <select id="typeFilter"><option value="">All</option></select>
         </label>
 
         <label id="resourceLabel" style="display:none;">Resource:
-          <select id="resourceFilter">
-            <option value="">All</option>
-          </select>
+          <select id="resourceFilter"><option value="">All</option></select>
         </label>
 
         <label>From:
@@ -96,11 +92,6 @@ class BookingCalendar extends HTMLElement {
 
       <div id="calendar"></div>
     `;
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.css';
-    document.head.appendChild(link);
 
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
@@ -186,7 +177,7 @@ class BookingCalendar extends HTMLElement {
         const selectedResource = resourceFilter.value.trim();
         const fromDate = fromDateEl.value;
         const toDate = toDateEl.value;
-        const viewType = calendar.view.type;
+        const viewType = calendar.view?.type || 'dayGridMonth';
 
         const filtered = allBookings.filter(b => {
           const r = b.resourceBooking;
@@ -194,7 +185,6 @@ class BookingCalendar extends HTMLElement {
 
           const bookingTypeKey = r.type?.key || '';
           const bookingResId = (r.id || '').toString();
-
           const start = new Date(b.startDateTime);
           const end = new Date(b.endDateTime);
           const from = fromDate ? new Date(fromDate + 'T00:00:00') : null;
@@ -255,7 +245,7 @@ class BookingCalendar extends HTMLElement {
       this.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           calendar.changeView(btn.dataset.view);
-          refreshCalendar();
+          setTimeout(refreshCalendar, 0); // ensure calendar view updates first
         });
       });
     };

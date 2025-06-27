@@ -111,13 +111,17 @@ class BookingCalendar extends HTMLElement {
       const todayStr = today.toISOString().split('T')[0];
 
       const settingData = await fetchWithAuth('/o/c/bookingsettings');
+      console.log("🔍 BookingSettings fetched:", settingData);
+
       let maxAdvance = 0;
       const typeColorMap = {};
 
       settingData.items?.forEach(item => {
-        const typeKey = item.resourceType; // ✅ no .key, directly accessed
+        const typeKey = item.resourceType; // picklist, direct access
         const color = item.color;
         const advance = item.maxAdvanceBookingTime;
+
+        console.log("📦 BookingSetting item:", { typeKey, color, advance });
 
         if (advance > maxAdvance) {
           maxAdvance = advance;
@@ -127,6 +131,8 @@ class BookingCalendar extends HTMLElement {
           typeColorMap[typeKey] = color;
         }
       });
+
+      console.log("🎨 Final typeColorMap:", typeColorMap);
 
       const maxDate = new Date(today);
       maxDate.setDate(today.getDate() + maxAdvance);
@@ -143,6 +149,8 @@ class BookingCalendar extends HTMLElement {
       const typeMap = {};
 
       const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
+      console.log("📋 Picklist entries:", picklistData.items);
+
       picklistData.items.forEach(entry => {
         if (!typeMap[entry.key]) {
           typeMap[entry.key] = entry.name;
@@ -154,6 +162,7 @@ class BookingCalendar extends HTMLElement {
       });
 
       let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
+      console.log("📅 All Bookings:", allBookings);
 
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -203,12 +212,20 @@ class BookingCalendar extends HTMLElement {
         }).map(b => {
           const typeKey = b.resourceBooking?.type;
           const color = typeColorMap[typeKey] || '#999';
+
+          console.log("🎯 Booking:", {
+            id: b.id,
+            resourceName: b.resourceBooking?.name,
+            type: typeKey,
+            color
+          });
+
           return {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
-            allDay: true, // ✅ Full-day event for proper rendering
-            display: 'block', // ✅ Force background color usage
+            allDay: true,
+            display: 'block',
             backgroundColor: color,
             borderColor: 'transparent',
             textColor: '#fff'

@@ -558,7 +558,7 @@ class BookingCalendar extends HTMLElement {
               return {
                 title: `${b.resourceBooking?.name || 'Booking'}`,
                 start: b.startDateTime,
-                end: b.endDateTime,
+                end: currentView === 'dayGridMonth'? new Date(new Date(b.endDateTime).getTime() + 86400000).toISOString() : b.endDateTime,
                 allDay: currentView === 'dayGridMonth',// ✅ Always use bar-style events
                 backgroundColor: color,
                 borderColor: color,

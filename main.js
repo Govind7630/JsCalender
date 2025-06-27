@@ -117,7 +117,7 @@ class BookingCalendar extends HTMLElement {
       const typeColorMap = {};
 
       settingData.items?.forEach(item => {
-        const typeKey = item.resourceType; // picklist, direct access
+        const typeKey = item.resourceType?.key; // ✅ FIXED: extract key
         const color = item.color;
         const advance = item.maxAdvanceBookingTime;
 
@@ -195,7 +195,7 @@ class BookingCalendar extends HTMLElement {
           const r = b.resourceBooking;
           if (!r) return false;
 
-          const bookingTypeKey = r.type?.trim?.() || '';
+          const bookingTypeKey = r.type?.key || '';
           const bookingResId = (r.id || '').toString();
 
           const start = new Date(b.startDateTime);
@@ -210,7 +210,7 @@ class BookingCalendar extends HTMLElement {
 
           return true;
         }).map(b => {
-          const typeKey = b.resourceBooking?.type;
+          const typeKey = b.resourceBooking?.type?.key;
           const color = typeColorMap[typeKey] || '#999';
 
           console.log("🎯 Booking:", {
@@ -247,7 +247,7 @@ class BookingCalendar extends HTMLElement {
           const resourceSet = new Map();
           allBookings.forEach(b => {
             const r = b.resourceBooking;
-            if (r?.type === selectedType) {
+            if (r?.type?.key === selectedType) {
               resourceSet.set(r.id, r.name);
             }
           });

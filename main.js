@@ -26,18 +26,8 @@ class BookingCalendar extends HTMLElement {
         
         :host {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-          --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-          --dark-gradient: linear-gradient(135deg, #434343 0%, #000000 100%);
-          --glass-bg: rgba(255, 255, 255, 0.25);
-          --glass-border: rgba(255, 255, 255, 0.18);
-          --shadow-soft: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-          --shadow-hover: 0 15px 35px rgba(31, 38, 135, 0.2);
-          --border-radius: 20px;
-          --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: block;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: #f8f9fa;
           min-height: 100vh;
           padding: 2rem;
         }
@@ -45,35 +35,11 @@ class BookingCalendar extends HTMLElement {
         .calendar-container {
           max-width: 1400px;
           margin: 0 auto;
-          background: var(--glass-bg);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border: 1px solid var(--glass-border);
-          border-radius: var(--border-radius);
-          box-shadow: var(--shadow-soft);
+          background: white;
+          border: 1px solid #e1e5e9;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
           padding: 2rem;
-          animation: slideInUp 0.8s ease-out;
-        }
-
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-
-        @keyframes shimmer {
-          0% { background-position: -200px 0; }
-          100% { background-position: calc(200px + 100%) 0; }
         }
 
         .filter-bar {
@@ -81,17 +47,15 @@ class BookingCalendar extends HTMLElement {
           gap: 1.5rem;
           flex-wrap: wrap;
           margin-bottom: 2rem;
-          background: rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(20px);
+          background: #f8f9fa;
           padding: 1.5rem;
-          border-radius: 15px;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          border-radius: 6px;
+          border: 1px solid #e1e5e9;
         }
 
         .filter-bar label {
-          font-weight: 600;
-          color: #333333;
+          font-weight: 500;
+          color: #495057;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -100,66 +64,40 @@ class BookingCalendar extends HTMLElement {
 
         .filter-bar select, 
         .filter-bar input {
-          padding: 12px 16px;
-          border-radius: 12px;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          font-size: 0.95rem;
-          font-weight: 500;
-          transition: var(--transition);
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-          color: #333;
+          padding: 8px 12px;
+          border-radius: 4px;
+          border: 1px solid #ced4da;
+          background: white;
+          font-size: 0.9rem;
+          transition: border-color 0.2s ease;
+          color: #495057;
         }
 
         .filter-bar select:focus, 
         .filter-bar input:focus {
           outline: none;
-          border-color: #fff;
-          background: rgba(255, 255, 255, 1);
-          box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3), 0 8px 25px rgba(0, 0, 0, 0.15);
-          transform: translateY(-2px);
+          border-color: #007bff;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
 
         .filter-bar button {
-          padding: 12px 24px;
-          background: var(--secondary-gradient);
-          color: black;
+          padding: 8px 16px;
+          background: #007bff;
+          color: white;
           border: none;
-          border-radius: 12px;
-          font-weight: 600;
-          font-size: 0.95rem;
+          border-radius: 4px;
+          font-weight: 500;
+          font-size: 0.9rem;
           cursor: pointer;
-          transition: var(--transition);
-          box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .filter-bar button::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-          transition: left 0.5s;
-        }
-
-        .filter-bar button:hover::before {
-          left: 100%;
+          transition: background-color 0.2s ease;
         }
 
         .filter-bar button:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+          background: #0056b3;
         }
 
         .filter-bar button:active {
-          transform: translateY(-1px);
+          background: #004085;
         }
 
         .calendar-header {
@@ -167,247 +105,150 @@ class BookingCalendar extends HTMLElement {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 2rem;
-          background: rgba(255, 255, 255, 0.2);
-          backdrop-filter: blur(15px);
-          padding: 1.5rem 2rem;
-          border-radius: 15px;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          padding: 1rem 0;
+          border-bottom: 1px solid #e1e5e9;
         }
 
         #calendarTitle {
-          font-size: 2rem;
-          font-weight: 700;
-          color: #333333;
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #212529;
         }
 
         .view-toggle {
           display: flex;
-          gap: 0.5rem;
-          background: rgba(255, 255, 255, 0.2);
-          padding: 0.5rem;
-          border-radius: 12px;
-          backdrop-filter: blur(15px);
+          gap: 0.25rem;
+          background: #f8f9fa;
+          padding: 0.25rem;
+          border-radius: 4px;
+          border: 1px solid #e1e5e9;
         }
 
         .view-btn {
-          width: 50px;
-          height: 45px;
-          border-radius: 12px;
-          background: rgba(255, 255, 255, 0.3);
-          color: #333333;
-          font-weight: 700;
-          font-size: 1rem;
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          width: 40px;
+          height: 32px;
+          border-radius: 3px;
+          background: transparent;
+          color: #6c757d;
+          font-weight: 500;
+          font-size: 0.85rem;
+          border: none;
           cursor: pointer;
-          transition: var(--transition);
+          transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .view-btn::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 0;
-          height: 0;
-          background: rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          transition: var(--transition);
-          transform: translate(-50%, -50%);
-        }
-
-        .view-btn:hover::before {
-          width: 100%;
-          height: 100%;
         }
 
         .view-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
-          color: #333333;
+          background: #e9ecef;
+          color: #495057;
         }
 
         .view-btn.active {
-          background: var(--success-gradient);
-          border-color: rgba(255, 255, 255, 0.6);
-          box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-          animation: pulse 2s infinite;
-          color: black;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+          background: #007bff;
+          color: white;
         }
 
         #calendar {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
-          padding: 2rem;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          position: relative;
-          overflow: hidden;
+          background: white;
+          border-radius: 6px;
+          padding: 1rem;
+          border: 1px solid #e1e5e9;
         }
 
-        #calendar::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: var(--primary-gradient);
-        }
-
-        /* Force override FullCalendar table styles */
-        #calendar table {
-          border-collapse: separate !important;
-          border-spacing: 4px !important;
-        }
-
-        #calendar .fc-scrollgrid-section-header > * {
-          background: none !important;
-        }
-
-        #calendar .fc-scrollgrid-section-body {
-          border: none !important;
-        }
-
-        #calendar .fc-scrollgrid-section-body table {
-          border: none !important;
-        }
-
-        #calendar tbody tr td {
-          border: none !important;
-        }
-
-        #calendar .fc-daygrid-body {
-          border: none !important;
-        }
-
-        #calendar .fc-scrollgrid {
-          border: none !important;
-        }
-
-        /* FullCalendar Custom Styling - High Specificity */
+        /* FullCalendar Custom Styling */
         #calendar .fc {
           font-family: 'Inter', sans-serif !important;
         }
 
         #calendar .fc-theme-standard .fc-scrollgrid {
-          border: none !important;
-          border-radius: 15px !important;
-          overflow: hidden !important;
+          border: 1px solid #e1e5e9 !important;
+          border-radius: 4px !important;
         }
 
+        /* Header styling - simple and clean */
         #calendar .fc-col-header-cell {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-          color: white !important;
-          font-weight: 700 !important;
+          background: #f8f9fa !important;
+          color: #495057 !important;
+          font-weight: 600 !important;
           text-transform: uppercase !important;
-          letter-spacing: 1.5px !important;
-          padding: 1.2rem 0.8rem !important;
-          border: none !important;
-          position: relative !important;
-          font-size: 0.9rem !important;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+          letter-spacing: 0.5px !important;
+          padding: 0.75rem 0.5rem !important;
+          border-bottom: 1px solid #e1e5e9 !important;
+          font-size: 0.75rem !important;
         }
 
-        #calendar .fc-col-header-cell::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          width: 40px;
-          height: 4px;
-          background: rgba(255, 255, 255, 0.8);
-          transform: translateX(-50%);
-          border-radius: 3px;
-        }
-
-        #calendar .fc-col-header-cell:hover::after {
-          width: 60px;
-          background: white;
-          transition: all 0.3s ease;
-        }
-
+        /* Day cells - remove hover effects to prevent event hiding */
         #calendar .fc-daygrid-day {
           background: white !important;
-          border: 2px solid #f0f8ff !important;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-          position: relative !important;
-          cursor: pointer !important;
+          border: 1px solid #e1e5e9 !important;
           min-height: 120px !important;
         }
 
-        #calendar .fc-daygrid-day:hover {
-          background: linear-gradient(135deg, #f8fbff 0%, #e8f4f8 100%) !important;
-          transform: translateY(-4px) scale(1.02) !important;
-          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.15) !important;
-          z-index: 10 !important;
-          border-color: #667eea !important;
+        /* Remove today highlighting that was too blue */
+        #calendar .fc-day-today {
+          background: #f8f9fa !important;
+          border: 1px solid #007bff !important;
         }
 
         #calendar .fc-daygrid-day-number {
-          color: #333 !important;
+          color: #495057 !important;
           text-decoration: none !important;
-          font-weight: 700 !important;
-          font-size: 1.1rem !important;
-          padding: 10px !important;
-          border-radius: 50% !important;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-          position: relative !important;
-          z-index: 2 !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          width: 40px !important;
-          height: 40px !important;
-          margin: 8px !important;
-        }
-
-        #calendar .fc-daygrid-day-number:hover {
-          background: var(--primary-gradient) !important;
-          color: #333333 !important;
-          transform: scale(1.3) rotate(5deg) !important;
-          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
-        }
-
-        #calendar .fc-day-today {
-          background: linear-gradient(135deg, #667eea30 0%, #764ba230 100%) !important;
-          border: 3px solid #667eea !important;
-          box-shadow: 0 0 20px rgba(102, 126, 234, 0.3) !important;
+          font-weight: 500 !important;
+          font-size: 0.9rem !important;
+          padding: 4px 8px !important;
+          margin: 4px !important;
         }
 
         #calendar .fc-day-today .fc-daygrid-day-number {
-          background: var(--primary-gradient) !important;
+          background: #007bff !important;
           color: white !important;
-          font-weight: 800 !important;
-          animation: pulse 2s infinite !important;
-          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6) !important;
+          border-radius: 3px !important;
+          font-weight: 600 !important;
         }
 
         #calendar .fc-event {
           border: none !important;
-          border-radius: 12px !important;
-          padding: 6px 12px !important;
-          margin: 3px !important;
-          font-weight: 600 !important;
-          font-size: 0.9rem !important;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+          border-radius: 3px !important;
+          padding: 2px 6px !important;
+          margin: 1px !important;
+          font-weight: 500 !important;
+          font-size: 0.8rem !important;
           cursor: pointer !important;
-          position: relative !important;
-          overflow: hidden !important;
-          backdrop-filter: blur(10px) !important;
         }
 
         #calendar .fc-event-title {
-          font-weight: 700 !important;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-          letter-spacing: 0.5px !important;
+          font-weight: 500 !important;
+        }
+
+        /* Navigation buttons */
+        #calendar .fc-toolbar {
+          margin-bottom: 1rem !important;
+        }
+
+        #calendar .fc-button-group > .fc-button {
+          background: #f8f9fa !important;
+          border: 1px solid #e1e5e9 !important;
+          color: #495057 !important;
+          font-size: 0.9rem !important;
+          padding: 0.375rem 0.75rem !important;
+        }
+
+        #calendar .fc-button-group > .fc-button:hover {
+          background: #e9ecef !important;
+          border-color: #adb5bd !important;
+          color: #495057 !important;
+        }
+
+        #calendar .fc-button-group > .fc-button:focus {
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+        }
+
+        #calendar .fc-button-group > .fc-button.fc-button-active {
+          background: #007bff !important;
+          border-color: #007bff !important;
+          color: white !important;
         }
 
         /* Responsive Design */
@@ -432,52 +273,19 @@ class BookingCalendar extends HTMLElement {
           }
           
           #calendarTitle {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
           }
           
           .view-btn {
-            width: 45px;
-            height: 40px;
-            font-size: 0.9rem;
+            width: 36px;
+            height: 28px;
+            font-size: 0.8rem;
           }
         }
 
         /* Loading Animation */
         .loading {
-          position: relative;
-          color: transparent !important;
-        }
-
-        .loading::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-          background-size: 200px 100%;
-          animation: shimmer 1.5s infinite;
-          border-radius: inherit;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: var(--primary-gradient);
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: var(--secondary-gradient);
+          color: #6c757d !important;
         }
       </style>
 
@@ -504,7 +312,7 @@ class BookingCalendar extends HTMLElement {
           </label>
 
           <button id="applyFilters">
-            ✨ Apply Filters
+            Apply Filters
           </button>
         </div>
 
@@ -544,30 +352,28 @@ class BookingCalendar extends HTMLElement {
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().split('T')[0];
 
-      // Custom notification system
+      // Simple notification system
       const showNotification = (message, type = "info") => {
         const notification = document.createElement('div');
         notification.style.cssText = `
           position: fixed;
           top: 20px;
           right: 20px;
-          padding: 1rem 2rem;
-          border-radius: 12px;
+          padding: 0.75rem 1rem;
+          border-radius: 4px;
           color: white;
-          font-weight: 600;
+          font-weight: 500;
           font-size: 0.9rem;
           z-index: 10000;
-          transform: translateX(400px);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          transform: translateX(100%);
+          transition: transform 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         `;
         
         const colors = {
-          success: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-          error: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-          info: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+          success: '#28a745',
+          error: '#dc3545',
+          info: '#007bff'
         };
         
         notification.style.background = colors[type] || colors.info;
@@ -580,9 +386,9 @@ class BookingCalendar extends HTMLElement {
         }, 100);
         
         setTimeout(() => {
-          notification.style.transform = 'translateX(400px)';
+          notification.style.transform = 'translateX(100%)';
           setTimeout(() => notification.remove(), 300);
-        }, 300);
+        }, 3000);
       };
 
       try {
@@ -626,7 +432,11 @@ class BookingCalendar extends HTMLElement {
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
-          headerToolbar: false,
+          headerToolbar: {
+            left: 'prev,next today',
+            center: false, // We handle title in our custom header
+            right: ''
+          },
           displayEventTime: false,
           events: [],
           datesSet: function(info) {
@@ -636,26 +446,17 @@ class BookingCalendar extends HTMLElement {
           },
           dateClick: function(info) {
             const clickedDate = new Date(info.dateStr);
-            const btn = document.querySelector(`[data-date="${info.dateStr}"]`) || info.dayEl;
-            
-            // Add click animation
-            if (btn) {
-              btn.style.transform = 'scale(0.95)';
-              setTimeout(() => {
-                btn.style.transform = '';
-              }, 150);
-            }
 
             if (clickedDate < today) {
-              showNotification("❌ You can't book in the past.", "error");
+              showNotification("You can't book in the past.", "error");
             } else if (clickedDate > maxDate) {
-              showNotification("❌ You can't book beyond the allowed booking window.", "error");
+              showNotification("You can't book beyond the allowed booking window.", "error");
             } else {
-              showNotification(`✅ Opening booking modal for ${info.dateStr}`, "success");
+              showNotification(`Opening booking modal for ${info.dateStr}`, "success");
             }
           },
           eventClick: function(info) {
-            showNotification(`📋 Event: ${info.event.title}`, "info");
+            showNotification(`Event: ${info.event.title}`, "info");
           }
         });
 
@@ -666,7 +467,7 @@ class BookingCalendar extends HTMLElement {
           const selectedResource = resourceFilter.value.trim();
           const fromDate = fromDateEl.value;
           const toDate = toDateEl.value;
-          const viewType = calendar.view?.type || 'dayGridMonth';
+          const currentView = calendar.view?.type || 'dayGridMonth';
 
           const filtered = allBookings.filter(b => {
             const r = b.resourceBooking;
@@ -687,13 +488,13 @@ class BookingCalendar extends HTMLElement {
             return true;
           }).map(b => {
             const typeKey = b.resourceBooking?.type?.key;
-            const color = typeColorMap[typeKey] || '#667eea';
+            const color = typeColorMap[typeKey] || '#007bff';
 
             return {
               title: `${b.resourceBooking?.name || 'Booking'}`,
               start: b.startDateTime,
               end: b.endDateTime,
-              allDay: false, // Changed to false to allow multi-day events
+              allDay: currentView === 'dayGridMonth', // Set allDay only for month view
               backgroundColor: color,
               borderColor: color,
               textColor: '#fff'
@@ -731,7 +532,7 @@ class BookingCalendar extends HTMLElement {
 
         this.querySelector('#applyFilters').addEventListener('click', () => {
           refreshCalendar();
-          showNotification("🔄 Filters applied successfully!", "success");
+          showNotification("Filters applied successfully!", "success");
         });
 
         this.querySelectorAll('.view-btn').forEach(btn => {
@@ -750,7 +551,7 @@ class BookingCalendar extends HTMLElement {
         console.error('Error loading calendar:', error);
         calendarTitleEl.textContent = 'Error loading calendar';
         calendarTitleEl.classList.remove('loading');
-        showNotification("❌ Error loading calendar data", "error");
+        showNotification("Error loading calendar data", "error");
       }
     };
 

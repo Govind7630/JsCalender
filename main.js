@@ -552,19 +552,19 @@ class BookingCalendar extends HTMLElement {
 
             return true;
           }).map(b => {
-            const typeKey = b.resourceBooking?.type?.key;
-            const color = typeColorMap[typeKey] || '#007bff';
-
-            return {
-              title: `${b.resourceBooking?.name || 'Booking'}`,
-              start: b.startDateTime,
-              end: b.endDateTime,
-              allDay: false, // Always set to false to properly handle multi-day events
-              backgroundColor: color,
-              borderColor: color,
-              textColor: '#fff'
-            };
-          });
+              const typeKey = b.resourceBooking?.type?.key;
+              const color = typeColorMap[typeKey] || '#007bff';
+            
+              return {
+                title: `${b.resourceBooking?.name || 'Booking'}`,
+                start: b.startDateTime,
+                end: b.endDateTime,
+                allDay: false, // ✅ Always use bar-style events
+                backgroundColor: color,
+                borderColor: color,
+                textColor: '#fff'
+              };
+            });
 
           calendar.removeAllEvents();
           calendar.addEventSource(filtered);

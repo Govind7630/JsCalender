@@ -224,7 +224,7 @@ class BookingCalendar extends HTMLElement {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
-            allDay: false, // ⬅️ timed event
+            allDay: true, // ⬅️ timed event
             backgroundColor: color,
             borderColor: color,
             textColor: '#fff'

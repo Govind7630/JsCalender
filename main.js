@@ -81,30 +81,30 @@ class BookingCalendar extends HTMLElement {
           gap: 1.5rem;
           flex-wrap: wrap;
           margin-bottom: 2rem;
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.15);
           backdrop-filter: blur(20px);
           padding: 1.5rem;
           border-radius: 15px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.3);
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         .filter-bar label {
-          font-weight: 500;
-          color: white;
+          font-weight: 600;
+          color: #ffffff;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
           font-size: 0.9rem;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         .filter-bar select, 
         .filter-bar input {
           padding: 12px 16px;
           border-radius: 12px;
-          border: 2px solid rgba(255, 255, 255, 0.2);
-          background: rgba(255, 255, 255, 0.9);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.95);
           backdrop-filter: blur(10px);
           font-size: 0.95rem;
           font-weight: 500;
@@ -117,7 +117,7 @@ class BookingCalendar extends HTMLElement {
         .filter-bar input:focus {
           outline: none;
           border-color: #fff;
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(255, 255, 255, 1);
           box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3), 0 8px 25px rgba(0, 0, 0, 0.15);
           transform: translateY(-2px);
         }
@@ -168,42 +168,39 @@ class BookingCalendar extends HTMLElement {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 2rem;
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(20px);
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(15px);
           padding: 1.5rem 2rem;
           border-radius: 15px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         #calendarTitle {
           font-size: 2rem;
           font-weight: 700;
-          color: white;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-          background: linear-gradient(45deg, #fff, #f0f8ff);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: #ffffff;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         .view-toggle {
           display: flex;
           gap: 0.5rem;
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.2);
           padding: 0.5rem;
           border-radius: 12px;
-          backdrop-filter: blur(10px);
+          backdrop-filter: blur(15px);
         }
 
         .view-btn {
-          width: 45px;
+          width: 50px;
           height: 45px;
           border-radius: 12px;
-          background: rgba(255, 255, 255, 0.2);
-          color: white;
+          background: rgba(255, 255, 255, 0.3);
+          color: #ffffff;
           font-weight: 700;
           font-size: 1rem;
-          border: 2px solid transparent;
+          border: 2px solid rgba(255, 255, 255, 0.3);
           cursor: pointer;
           transition: var(--transition);
           display: flex;
@@ -211,6 +208,7 @@ class BookingCalendar extends HTMLElement {
           justify-content: center;
           position: relative;
           overflow: hidden;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .view-btn::before {
@@ -234,13 +232,16 @@ class BookingCalendar extends HTMLElement {
         .view-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+          color: #ffffff;
         }
 
         .view-btn.active {
           background: var(--success-gradient);
-          border-color: rgba(255, 255, 255, 0.5);
+          border-color: rgba(255, 255, 255, 0.6);
           box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
           animation: pulse 2s infinite;
+          color: #ffffff;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         #calendar {
@@ -460,8 +461,9 @@ class BookingCalendar extends HTMLElement {
           }
           
           .view-btn {
-            width: 40px;
+            width: 45px;
             height: 40px;
+            font-size: 0.9rem;
           }
         }
 
@@ -567,6 +569,47 @@ class BookingCalendar extends HTMLElement {
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().split('T')[0];
 
+      // Custom notification system
+      const showNotification = (message, type = "info") => {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 1rem 2rem;
+          border-radius: 12px;
+          color: white;
+          font-weight: 600;
+          font-size: 0.9rem;
+          z-index: 10000;
+          transform: translateX(400px);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        `;
+        
+        const colors = {
+          success: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          error: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+          info: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        };
+        
+        notification.style.background = colors[type] || colors.info;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        setTimeout(() => {
+          notification.style.transform = 'translateX(400px)';
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      };
+
       try {
         const settingData = await fetchWithAuth('/o/c/bookingsettings');
         let maxAdvance = 0;
@@ -640,47 +683,6 @@ class BookingCalendar extends HTMLElement {
             showNotification(`📋 Event: ${info.event.title}`, "info");
           }
         });
-
-        // Custom notification system
-        const showNotification = (message, type = "info") => {
-          const notification = document.createElement('div');
-          notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
-            z-index: 10000;
-            transform: translateX(400px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-          `;
-          
-          const colors = {
-            success: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            error: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            info: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-          };
-          
-          notification.style.background = colors[type] || colors.info;
-          notification.textContent = message;
-          
-          document.body.appendChild(notification);
-          
-          setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-          }, 100);
-          
-          setTimeout(() => {
-            notification.style.transform = 'translateX(400px)';
-            setTimeout(() => notification.remove(), 300);
-          }, 3000);
-        };
 
         calendar.render();
 

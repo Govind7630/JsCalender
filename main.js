@@ -115,7 +115,7 @@ class BookingCalendar extends HTMLElement {
       const typeColorMap = {};
 
       settingData.items?.forEach(item => {
-        const typeKey = item.resourceType; // ✅ direct access, no `.key`
+        const typeKey = item.resourceType; // ✅ no .key, directly accessed
         const color = item.color;
         const advance = item.maxAdvanceBookingTime;
 
@@ -207,8 +207,11 @@ class BookingCalendar extends HTMLElement {
             title: `${b.resourceBooking?.name || 'Booking'}`,
             start: b.startDateTime,
             end: b.endDateTime,
+            allDay: true, // ✅ Full-day event for proper rendering
+            display: 'block', // ✅ Force background color usage
             backgroundColor: color,
-            borderColor: 'transparent'
+            borderColor: 'transparent',
+            textColor: '#fff'
           };
         });
 

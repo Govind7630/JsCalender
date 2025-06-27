@@ -81,23 +81,31 @@ class BookingCalendar extends HTMLElement {
         }
 
         .filter-bar button {
-          padding: 8px 16px;
-          background: #007bff;
+          padding: 10px 20px;
+          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
           color: white;
           border: none;
-          border-radius: 4px;
-          font-weight: 500;
+          border-radius: 6px;
+          font-weight: 600;
           font-size: 0.9rem;
           cursor: pointer;
-          transition: background-color 0.2s ease;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          align-self: flex-end;
+          min-width: 140px;
         }
 
         .filter-bar button:hover {
-          background: #0056b3;
+          background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+          box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+          transform: translateY(-1px);
         }
 
         .filter-bar button:active {
-          background: #004085;
+          transform: translateY(0);
+          box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
         }
 
         .calendar-header {
@@ -167,7 +175,7 @@ class BookingCalendar extends HTMLElement {
           border-radius: 4px !important;
         }
 
-        /* Header styling - simple and clean */
+        /* Header styling - remove anchor behavior and improve appearance */
         #calendar .fc-col-header-cell {
           background: #f8f9fa !important;
           color: #495057 !important;
@@ -179,20 +187,35 @@ class BookingCalendar extends HTMLElement {
           font-size: 0.75rem !important;
         }
 
-        /* Day cells - remove hover effects to prevent event hiding */
+        /* Remove anchor styling from day headers */
+        #calendar .fc-col-header-cell a {
+          color: #495057 !important;
+          text-decoration: none !important;
+          cursor: default !important;
+          pointer-events: none !important;
+        }
+
+        #calendar .fc-col-header-cell a:hover,
+        #calendar .fc-col-header-cell a:focus,
+        #calendar .fc-col-header-cell a:active {
+          color: #495057 !important;
+          text-decoration: none !important;
+        }
+
+        /* Day cells */
         #calendar .fc-daygrid-day {
           background: white !important;
           border: 1px solid #e1e5e9 !important;
           min-height: 120px !important;
         }
 
-        /* Remove today highlighting that was too blue */
+        /* Today highlighting */
         #calendar .fc-day-today {
           background: #f8f9fa !important;
           border: 1px solid #007bff !important;
         }
 
-        /* Day number styling - Remove anchor behavior and improve appearance */
+        /* Day number styling with improved hover effect */
         #calendar .fc-daygrid-day-number {
           color: #212529 !important;
           text-decoration: none !important;
@@ -200,21 +223,24 @@ class BookingCalendar extends HTMLElement {
           font-size: 0.9rem !important;
           padding: 6px 10px !important;
           margin: 4px !important;
-          border-radius: 4px !important;
-          transition: all 0.2s ease !important;
+          border-radius: 6px !important;
+          transition: all 0.3s ease !important;
           cursor: pointer !important;
           display: inline-block !important;
           min-width: 28px !important;
           text-align: center !important;
+          background: transparent !important;
+          border: 1px solid transparent !important;
         }
 
-        /* Hover effect for day numbers */
+        /* Enhanced hover effect for day numbers */
         #calendar .fc-daygrid-day-number:hover {
-          background: #f8f9fa !important;
-          color: #495057 !important;
+          background: linear-gradient(135deg, #007bff, #0056b3) !important;
+          color: white !important;
           text-decoration: none !important;
-          transform: translateY(-1px) !important;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+          transform: translateY(-2px) scale(1.05) !important;
+          box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4) !important;
+          border: 1px solid #007bff !important;
         }
 
         /* Remove any link styling */
@@ -225,27 +251,36 @@ class BookingCalendar extends HTMLElement {
         }
 
         #calendar .fc-day-today .fc-daygrid-day-number {
-          background: #007bff !important;
+          background: linear-gradient(135deg, #007bff, #0056b3) !important;
           color: white !important;
-          border-radius: 4px !important;
+          border-radius: 6px !important;
           font-weight: 700 !important;
+          border: 1px solid #007bff !important;
         }
 
         #calendar .fc-day-today .fc-daygrid-day-number:hover {
-          background: #0056b3 !important;
+          background: linear-gradient(135deg, #0056b3, #004085) !important;
           color: white !important;
-          transform: translateY(-1px) !important;
-          box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3) !important;
+          transform: translateY(-2px) scale(1.05) !important;
+          box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5) !important;
         }
 
+        /* Event styling */
         #calendar .fc-event {
           border: none !important;
-          border-radius: 3px !important;
+          border-radius: 4px !important;
           padding: 2px 6px !important;
           margin: 1px !important;
           font-weight: 500 !important;
           font-size: 0.8rem !important;
           cursor: pointer !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+          transition: all 0.2s ease !important;
+        }
+
+        #calendar .fc-event:hover {
+          transform: translateY(-1px) !important;
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
         }
 
         #calendar .fc-event-title {
@@ -524,7 +559,7 @@ class BookingCalendar extends HTMLElement {
               title: `${b.resourceBooking?.name || 'Booking'}`,
               start: b.startDateTime,
               end: b.endDateTime,
-              allDay: currentView === 'dayGridMonth', // Set allDay only for month view
+              allDay: false, // Always set to false to properly handle multi-day events
               backgroundColor: color,
               borderColor: color,
               textColor: '#fff'

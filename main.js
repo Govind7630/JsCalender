@@ -18,59 +18,123 @@ class BookingCalendar extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        :host {
+          font-family: "Inter", sans-serif;
+        }
+
         .filter-bar {
           display: flex;
           gap: 1rem;
           flex-wrap: wrap;
           margin-bottom: 1rem;
-          background: #eef1f5;
+          background: #f9f9f9;
           padding: 1rem;
-          border-radius: 10px;
+          border-radius: 12px;
+          box-shadow: 0 1px 5px rgba(0,0,0,0.05);
         }
+
         .filter-bar label {
           font-weight: 500;
         }
+
         .filter-bar select, .filter-bar input {
-          padding: 5px 10px;
-          border-radius: 5px;
+          padding: 6px 10px;
+          border-radius: 6px;
           border: 1px solid #ccc;
         }
+
         .filter-bar button {
           padding: 6px 14px;
           background-color: #007bff;
           color: white;
           border: none;
           border-radius: 6px;
-        }
-        .view-toggle {
-          margin-bottom: 1rem;
-        }
-        .view-btn {
-          padding: 6px 12px;
-          margin-right: 5px;
-          background-color: #f0f0f0;
-          border: 1px solid #ccc;
-          border-radius: 6px;
           cursor: pointer;
         }
-        .view-btn:hover {
-          background-color: #d0d0d0;
+
+        .view-toggle {
+          display: flex;
+          justify-content: flex-start;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
         }
+
+        .view-btn {
+          background: #e5f4ee;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 999px;
+          color: #057a55;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .view-btn:hover,
+        .view-btn.active {
+          background: #057a55;
+          color: white;
+        }
+
         #calendar {
           background: white;
-          border-radius: 10px;
+          border-radius: 12px;
           padding: 1rem;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .fc .fc-day-today {
+          background-color: transparent !important;
+          position: relative;
+        }
+
+        .fc .fc-day-today::after {
+          content: '';
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          right: 5px;
+          bottom: 5px;
+          border: 2px solid #057a55;
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        .fc-toolbar-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+        }
+
+        .fc .fc-button {
+          background: transparent;
+          border: none;
+          color: #333;
+          font-size: 1.2rem;
+        }
+
+        .fc .fc-button:hover {
+          color: #057a55;
+        }
+
+        .fc-daygrid-day-number {
+          font-weight: 600;
+          font-size: 0.875rem;
+          padding: 4px;
         }
       </style>
 
       <div class="filter-bar">
         <label>Type:
-          <select id="typeFilter"><option value="">All</option></select>
+          <select id="typeFilter">
+            <option value="">All</option>
+          </select>
         </label>
 
         <label id="resourceLabel" style="display:none;">Resource:
-          <select id="resourceFilter"><option value="">All</option></select>
+          <select id="resourceFilter">
+            <option value="">All</option>
+          </select>
         </label>
 
         <label>From:
@@ -85,16 +149,21 @@ class BookingCalendar extends HTMLElement {
       </div>
 
       <div class="view-toggle">
-        <button class="view-btn" data-view="dayGridMonth">Month</button>
-        <button class="view-btn" data-view="timeGridWeek">Week</button>
-        <button class="view-btn" data-view="timeGridDay">Day</button>
+        <button class="view-btn active" data-view="dayGridMonth">M</button>
+        <button class="view-btn" data-view="timeGridWeek">W</button>
+        <button class="view-btn" data-view="timeGridDay">D</button>
       </div>
 
       <div id="calendar"></div>
     `;
 
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.css';
+    document.head.appendChild(link);
+
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
+    script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js';
     script.onload = async () => {
       const token = await this.getAccessToken();
       const fetchWithAuth = async (url) => {
@@ -156,7 +225,7 @@ class BookingCalendar extends HTMLElement {
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         headerToolbar: false,
-        displayEventTime: false,
+        displayEventTime: true,
         events: [],
         dateClick: function(info) {
           const clickedDate = new Date(info.dateStr);
@@ -177,7 +246,7 @@ class BookingCalendar extends HTMLElement {
         const selectedResource = resourceFilter.value.trim();
         const fromDate = fromDateEl.value;
         const toDate = toDateEl.value;
-        const viewType = calendar.view?.type || 'dayGridMonth';
+        const viewType = calendar.view.type;
 
         const filtered = allBookings.filter(b => {
           const r = b.resourceBooking;
@@ -185,6 +254,7 @@ class BookingCalendar extends HTMLElement {
 
           const bookingTypeKey = r.type?.key || '';
           const bookingResId = (r.id || '').toString();
+
           const start = new Date(b.startDateTime);
           const end = new Date(b.endDateTime);
           const from = fromDate ? new Date(fromDate + 'T00:00:00') : null;
@@ -244,8 +314,10 @@ class BookingCalendar extends HTMLElement {
 
       this.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          this.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
           calendar.changeView(btn.dataset.view);
-          setTimeout(refreshCalendar, 0); // ensure calendar view updates first
+          refreshCalendar();
         });
       });
     };

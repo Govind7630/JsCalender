@@ -487,6 +487,7 @@ class BookingCalendar extends HTMLElement {
         filterToggle.classList.toggle('active');
       });
 
+      // Use today for default, but allow all bookings and all dates in filter
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayStr = today.toISOString().split('T')[0];
@@ -547,10 +548,11 @@ class BookingCalendar extends HTMLElement {
         maxDate.setDate(today.getDate() + maxAdvance);
         const maxDateStr = maxDate.toISOString().split('T')[0];
 
+        // Set fromDate to today by default, but allow all dates in the past
         fromDateEl.value = todayStr;
-        fromDateEl.min = todayStr;
+        fromDateEl.min = '';
         fromDateEl.max = maxDateStr;
-        toDateEl.min = todayStr;
+        toDateEl.min = '';
         toDateEl.max = maxDateStr;
 
         const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
@@ -586,10 +588,7 @@ class BookingCalendar extends HTMLElement {
           },
           dateClick: function(info) {
             const clickedDate = new Date(info.dateStr);
-
-            if (clickedDate < today) {
-              showNotification("Can't book in the past", "error");
-            } else if (clickedDate > maxDate) {
+            if (clickedDate > maxDate) {
               showNotification("Beyond booking window", "error");
             } else {
                 openModal();

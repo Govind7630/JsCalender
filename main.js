@@ -28,27 +28,27 @@ class BookingCalendar extends HTMLElement {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: block;
           background: #f8f9fa;
-          min-height: 100vh;
-          padding: 2rem;
+          padding: 1rem;
+          font-size: 14px;
         }
 
         .calendar-container {
-          max-width: 1400px;
+          max-width: 1200px;
           margin: 0 auto;
           background: white;
           border: 1px solid #e1e5e9;
           border-radius: 8px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          padding: 2rem;
+          padding: 1.5rem;
         }
 
         .filter-bar {
           display: flex;
-          gap: 1.5rem;
+          gap: 1rem;
           flex-wrap: wrap;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
           background: #f8f9fa;
-          padding: 1.5rem;
+          padding: 1rem;
           border-radius: 6px;
           border: 1px solid #e1e5e9;
         }
@@ -58,19 +58,25 @@ class BookingCalendar extends HTMLElement {
           color: #495057;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
-          font-size: 0.9rem;
+          gap: 0.4rem;
+          font-size: 0.85rem;
+          min-width: 120px;
+        }
+
+        .filter-bar span {
+          font-size: 0.8rem;
         }
 
         .filter-bar select, 
         .filter-bar input {
-          padding: 8px 12px;
+          padding: 6px 10px;
           border-radius: 4px;
           border: 1px solid #ced4da;
           background: white;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           transition: border-color 0.2s ease;
           color: #495057;
+          height: 36px;
         }
 
         .filter-bar select:focus, 
@@ -81,20 +87,21 @@ class BookingCalendar extends HTMLElement {
         }
 
         .filter-bar button {
-          padding: 10px 20px;
+          padding: 8px 16px;
           background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
           color: white;
           border: none;
           border-radius: 6px;
           font-weight: 600;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           cursor: pointer;
           transition: all 0.3s ease;
           box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
           text-transform: uppercase;
           letter-spacing: 0.5px;
           align-self: flex-end;
-          min-width: 140px;
+          min-width: 120px;
+          height: 36px;
         }
 
         .filter-bar button:hover {
@@ -112,13 +119,13 @@ class BookingCalendar extends HTMLElement {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 2rem;
-          padding: 1rem 0;
+          margin-bottom: 1.5rem;
+          padding: 0.75rem 0;
           border-bottom: 1px solid #e1e5e9;
         }
 
         #calendarTitle {
-          font-size: 1.5rem;
+          font-size: 1.25rem;
           font-weight: 600;
           color: #212529;
         }
@@ -133,13 +140,13 @@ class BookingCalendar extends HTMLElement {
         }
 
         .view-btn {
-          width: 40px;
-          height: 32px;
+          width: 36px;
+          height: 28px;
           border-radius: 3px;
           background: transparent;
           color: #6c757d;
           font-weight: 500;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           border: none;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -161,13 +168,14 @@ class BookingCalendar extends HTMLElement {
         #calendar {
           background: white;
           border-radius: 6px;
-          padding: 1rem;
+          padding: 0.75rem;
           border: 1px solid #e1e5e9;
         }
 
-        /* FullCalendar Custom Styling */
+        /* FullCalendar Custom Styling - Compact Version */
         #calendar .fc {
           font-family: 'Inter', sans-serif !important;
+          font-size: 0.85rem !important;
         }
 
         #calendar .fc-theme-standard .fc-scrollgrid {
@@ -175,16 +183,16 @@ class BookingCalendar extends HTMLElement {
           border-radius: 4px !important;
         }
 
-        /* Header styling - remove anchor behavior and improve appearance */
+        /* Compact header styling */
         #calendar .fc-col-header-cell {
           background: #f8f9fa !important;
           color: #495057 !important;
           font-weight: 600 !important;
           text-transform: uppercase !important;
           letter-spacing: 0.5px !important;
-          padding: 0.75rem 0.5rem !important;
+          padding: 0.5rem 0.25rem !important;
           border-bottom: 1px solid #e1e5e9 !important;
-          font-size: 0.75rem !important;
+          font-size: 0.7rem !important;
         }
 
         /* Remove anchor styling from day headers */
@@ -202,11 +210,11 @@ class BookingCalendar extends HTMLElement {
           text-decoration: none !important;
         }
 
-        /* Day cells */
+        /* Compact day cells */
         #calendar .fc-daygrid-day {
           background: white !important;
           border: 1px solid #e1e5e9 !important;
-          min-height: 120px !important;
+          min-height: 80px !important;
         }
 
         /* Today highlighting */
@@ -215,19 +223,19 @@ class BookingCalendar extends HTMLElement {
           border: 1px solid #007bff !important;
         }
 
-        /* Day number styling with improved hover effect */
+        /* Compact day number styling */
         #calendar .fc-daygrid-day-number {
           color: #212529 !important;
           text-decoration: none !important;
           font-weight: 600 !important;
-          font-size: 0.9rem !important;
-          padding: 6px 10px !important;
-          margin: 4px !important;
-          border-radius: 6px !important;
+          font-size: 0.8rem !important;
+          padding: 4px 8px !important;
+          margin: 3px !important;
+          border-radius: 4px !important;
           transition: all 0.3s ease !important;
           cursor: pointer !important;
           display: inline-block !important;
-          min-width: 28px !important;
+          min-width: 24px !important;
           text-align: center !important;
           background: transparent !important;
           border: 1px solid transparent !important;
@@ -238,8 +246,8 @@ class BookingCalendar extends HTMLElement {
           background: linear-gradient(135deg, #007bff, #0056b3) !important;
           color: white !important;
           text-decoration: none !important;
-          transform: translateY(-2px) scale(1.05) !important;
-          box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4) !important;
+          transform: translateY(-1px) scale(1.05) !important;
+          box-shadow: 0 3px 8px rgba(0, 123, 255, 0.4) !important;
           border: 1px solid #007bff !important;
         }
 
@@ -253,7 +261,7 @@ class BookingCalendar extends HTMLElement {
         #calendar .fc-day-today .fc-daygrid-day-number {
           background: linear-gradient(135deg, #007bff, #0056b3) !important;
           color: white !important;
-          border-radius: 6px !important;
+          border-radius: 4px !important;
           font-weight: 700 !important;
           border: 1px solid #007bff !important;
         }
@@ -261,43 +269,47 @@ class BookingCalendar extends HTMLElement {
         #calendar .fc-day-today .fc-daygrid-day-number:hover {
           background: linear-gradient(135deg, #0056b3, #004085) !important;
           color: white !important;
-          transform: translateY(-2px) scale(1.05) !important;
-          box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5) !important;
+          transform: translateY(-1px) scale(1.05) !important;
+          box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5) !important;
         }
 
-        /* Event styling */
+        /* Compact event styling */
         #calendar .fc-event {
           border: none !important;
-          border-radius: 4px !important;
-          padding: 2px 6px !important;
+          border-radius: 3px !important;
+          padding: 1px 4px !important;
           margin: 1px !important;
           font-weight: 500 !important;
-          font-size: 0.8rem !important;
+          font-size: 0.7rem !important;
           cursor: pointer !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
           transition: all 0.2s ease !important;
+          line-height: 1.2 !important;
         }
 
         #calendar .fc-event:hover {
           transform: translateY(-1px) !important;
-          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
         }
 
         #calendar .fc-event-title {
           font-weight: 500 !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
         }
 
-        /* Navigation buttons */
+        /* Compact navigation buttons */
         #calendar .fc-toolbar {
-          margin-bottom: 1rem !important;
+          margin-bottom: 0.75rem !important;
         }
 
         #calendar .fc-button-group > .fc-button {
           background: #f8f9fa !important;
           border: 1px solid #e1e5e9 !important;
           color: #495057 !important;
-          font-size: 0.9rem !important;
-          padding: 0.375rem 0.75rem !important;
+          font-size: 0.8rem !important;
+          padding: 0.25rem 0.5rem !important;
         }
 
         #calendar .fc-button-group > .fc-button:hover {
@@ -319,7 +331,8 @@ class BookingCalendar extends HTMLElement {
         /* Responsive Design */
         @media (max-width: 768px) {
           :host {
-            padding: 1rem;
+            padding: 0.5rem;
+            font-size: 13px;
           }
           
           .calendar-container {
@@ -327,24 +340,58 @@ class BookingCalendar extends HTMLElement {
           }
           
           .filter-bar {
-            gap: 1rem;
-            padding: 1rem;
+            gap: 0.75rem;
+            padding: 0.75rem;
+          }
+          
+          .filter-bar label {
+            min-width: 100px;
           }
           
           .calendar-header {
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.75rem;
             text-align: center;
           }
           
           #calendarTitle {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
           }
           
           .view-btn {
-            width: 36px;
-            height: 28px;
-            font-size: 0.8rem;
+            width: 32px;
+            height: 24px;
+            font-size: 0.75rem;
+          }
+          
+          #calendar .fc-daygrid-day {
+            min-height: 60px !important;
+          }
+          
+          #calendar .fc-event {
+            font-size: 0.65rem !important;
+            padding: 1px 3px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .filter-bar {
+            flex-direction: column;
+          }
+          
+          .filter-bar label {
+            min-width: auto;
+          }
+          
+          #calendar .fc-daygrid-day {
+            min-height: 50px !important;
+          }
+          
+          #calendar .fc-daygrid-day-number {
+            font-size: 0.75rem !important;
+            padding: 3px 6px !important;
+            margin: 2px !important;
+            min-width: 20px !important;
           }
         }
 
@@ -566,7 +613,7 @@ class BookingCalendar extends HTMLElement {
                 title: `${b.resourceBooking?.name || 'Booking'}`,
                 start: b.startDateTime,
                 end: currentView === 'dayGridMonth'? new Date(new Date(b.endDateTime).getTime() + 86400000).toISOString() : b.endDateTime,
-                allDay: currentView === 'dayGridMonth',// ✅ Always use bar-style events
+                allDay: currentView === 'dayGridMonth',
                 backgroundColor: color,
                 borderColor: color,
                 textColor: '#fff'

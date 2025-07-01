@@ -28,8 +28,10 @@ class BookingCalendar extends HTMLElement {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           display: block;
           background: #f8f9fa;
-          padding: 1rem;
-          font-size: 14px;
+          padding: 0.5rem;
+          font-size: 13px;
+          height: 100vh;
+          overflow: hidden;
         }
 
         .calendar-container {
@@ -39,95 +41,60 @@ class BookingCalendar extends HTMLElement {
           border: 1px solid #e1e5e9;
           border-radius: 8px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          padding: 1.5rem;
-        }
-
-        .filter-bar {
-          display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
-          margin-bottom: 1.5rem;
-          background: #f8f9fa;
-          padding: 1rem;
-          border-radius: 6px;
-          border: 1px solid #e1e5e9;
-        }
-
-        .filter-bar label {
-          font-weight: 500;
-          color: #495057;
+          padding: 0.75rem;
+          height: calc(100vh - 1rem);
           display: flex;
           flex-direction: column;
-          gap: 0.4rem;
-          font-size: 0.85rem;
-          min-width: 120px;
+          overflow: hidden;
         }
 
-        .filter-bar span {
-          font-size: 0.8rem;
-        }
-
-        .filter-bar select, 
-        .filter-bar input {
-          padding: 6px 10px;
-          border-radius: 4px;
-          border: 1px solid #ced4da;
-          background: white;
-          font-size: 0.85rem;
-          transition: border-color 0.2s ease;
-          color: #495057;
-          height: 36px;
-        }
-
-        .filter-bar select:focus, 
-        .filter-bar input:focus {
-          outline: none;
-          border-color: #007bff;
-          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        }
-
-        .filter-bar button {
-          padding: 8px 16px;
-          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-weight: 600;
-          font-size: 0.8rem;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          align-self: flex-end;
-          min-width: 120px;
-          height: 36px;
-        }
-
-        .filter-bar button:hover {
-          background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-          box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-          transform: translateY(-1px);
-        }
-
-        .filter-bar button:active {
-          transform: translateY(0);
-          box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
-        }
-
-        .calendar-header {
+        .compact-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1.5rem;
-          padding: 0.75rem 0;
+          margin-bottom: 0.5rem;
+          padding: 0.5rem 0;
           border-bottom: 1px solid #e1e5e9;
+          flex-shrink: 0;
         }
 
         #calendarTitle {
-          font-size: 1.25rem;
+          font-size: 1.1rem;
           font-weight: 600;
           color: #212529;
+          margin: 0;
+        }
+
+        .header-controls {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .filter-toggle {
+          background: #f8f9fa;
+          border: 1px solid #e1e5e9;
+          border-radius: 4px;
+          padding: 0.4rem 0.75rem;
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: #495057;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .filter-toggle:hover {
+          background: #e9ecef;
+          border-color: #adb5bd;
+        }
+
+        .filter-toggle.active {
+          background: #007bff;
+          border-color: #007bff;
+          color: white;
         }
 
         .view-toggle {
@@ -140,13 +107,13 @@ class BookingCalendar extends HTMLElement {
         }
 
         .view-btn {
-          width: 36px;
-          height: 28px;
+          width: 32px;
+          height: 24px;
           border-radius: 3px;
           background: transparent;
           color: #6c757d;
           font-weight: 500;
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           border: none;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -165,17 +132,105 @@ class BookingCalendar extends HTMLElement {
           color: white;
         }
 
+        .filter-panel {
+          background: #f8f9fa;
+          border: 1px solid #e1e5e9;
+          border-radius: 6px;
+          margin-bottom: 0.5rem;
+          transition: all 0.3s ease;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .filter-panel.collapsed {
+          max-height: 0;
+          margin-bottom: 0;
+          border: none;
+          opacity: 0;
+        }
+
+        .filter-content {
+          padding: 0.75rem;
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+          align-items: flex-end;
+        }
+
+        .filter-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          min-width: 100px;
+        }
+
+        .filter-group label {
+          font-weight: 500;
+          color: #495057;
+          font-size: 0.75rem;
+          white-space: nowrap;
+        }
+
+        .filter-group select, 
+        .filter-group input {
+          padding: 0.25rem 0.5rem;
+          border-radius: 3px;
+          border: 1px solid #ced4da;
+          background: white;
+          font-size: 0.75rem;
+          color: #495057;
+          height: 28px;
+          transition: border-color 0.2s ease;
+        }
+
+        .filter-group select:focus, 
+        .filter-group input:focus {
+          outline: none;
+          border-color: #007bff;
+          box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.25);
+        }
+
+        .apply-btn {
+          padding: 0.25rem 0.75rem;
+          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 0.75rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          height: 28px;
+          min-width: 80px;
+        }
+
+        .apply-btn:hover {
+          background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+        }
+
         #calendar {
           background: white;
           border-radius: 6px;
-          padding: 0.75rem;
+          padding: 0.5rem;
           border: 1px solid #e1e5e9;
+          flex: 1;
+          overflow: hidden;
+          min-height: 0;
         }
 
-        /* FullCalendar Custom Styling - Compact Version */
+        /* FullCalendar Custom Styling - Ultra Compact */
         #calendar .fc {
           font-family: 'Inter', sans-serif !important;
-          font-size: 0.85rem !important;
+          font-size: 0.8rem !important;
+          height: 100% !important;
+        }
+
+        #calendar .fc-view-harness {
+          height: 100% !important;
         }
 
         #calendar .fc-theme-standard .fc-scrollgrid {
@@ -183,19 +238,18 @@ class BookingCalendar extends HTMLElement {
           border-radius: 4px !important;
         }
 
-        /* Compact header styling */
+        /* Ultra compact header */
         #calendar .fc-col-header-cell {
           background: #f8f9fa !important;
           color: #495057 !important;
           font-weight: 600 !important;
           text-transform: uppercase !important;
           letter-spacing: 0.5px !important;
-          padding: 0.5rem 0.25rem !important;
+          padding: 0.25rem 0.125rem !important;
           border-bottom: 1px solid #e1e5e9 !important;
-          font-size: 0.7rem !important;
+          font-size: 0.65rem !important;
         }
 
-        /* Remove anchor styling from day headers */
         #calendar .fc-col-header-cell a {
           color: #495057 !important;
           text-decoration: none !important;
@@ -203,93 +257,70 @@ class BookingCalendar extends HTMLElement {
           pointer-events: none !important;
         }
 
-        #calendar .fc-col-header-cell a:hover,
-        #calendar .fc-col-header-cell a:focus,
-        #calendar .fc-col-header-cell a:active {
-          color: #495057 !important;
-          text-decoration: none !important;
-        }
-
-        /* Compact day cells */
+        /* Ultra compact day cells */
         #calendar .fc-daygrid-day {
           background: white !important;
           border: 1px solid #e1e5e9 !important;
-          min-height: 80px !important;
+          min-height: 60px !important;
         }
 
-        /* Today highlighting */
         #calendar .fc-day-today {
           background: #f8f9fa !important;
           border: 1px solid #007bff !important;
         }
 
-        /* Compact day number styling */
+        /* Ultra compact day numbers */
         #calendar .fc-daygrid-day-number {
           color: #212529 !important;
           text-decoration: none !important;
           font-weight: 600 !important;
-          font-size: 0.8rem !important;
-          padding: 4px 8px !important;
-          margin: 3px !important;
-          border-radius: 4px !important;
+          font-size: 0.7rem !important;
+          padding: 2px 6px !important;
+          margin: 2px !important;
+          border-radius: 3px !important;
           transition: all 0.3s ease !important;
           cursor: pointer !important;
           display: inline-block !important;
-          min-width: 24px !important;
+          min-width: 20px !important;
           text-align: center !important;
           background: transparent !important;
           border: 1px solid transparent !important;
         }
 
-        /* Enhanced hover effect for day numbers */
         #calendar .fc-daygrid-day-number:hover {
           background: linear-gradient(135deg, #007bff, #0056b3) !important;
           color: white !important;
           text-decoration: none !important;
           transform: translateY(-1px) scale(1.05) !important;
-          box-shadow: 0 3px 8px rgba(0, 123, 255, 0.4) !important;
+          box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4) !important;
           border: 1px solid #007bff !important;
-        }
-
-        /* Remove any link styling */
-        #calendar .fc-daygrid-day-number:link,
-        #calendar .fc-daygrid-day-number:visited {
-          color: #212529 !important;
-          text-decoration: none !important;
         }
 
         #calendar .fc-day-today .fc-daygrid-day-number {
           background: linear-gradient(135deg, #007bff, #0056b3) !important;
           color: white !important;
-          border-radius: 4px !important;
+          border-radius: 3px !important;
           font-weight: 700 !important;
           border: 1px solid #007bff !important;
         }
 
-        #calendar .fc-day-today .fc-daygrid-day-number:hover {
-          background: linear-gradient(135deg, #0056b3, #004085) !important;
-          color: white !important;
-          transform: translateY(-1px) scale(1.05) !important;
-          box-shadow: 0 4px 10px rgba(0, 123, 255, 0.5) !important;
-        }
-
-        /* Compact event styling */
+        /* Ultra compact events */
         #calendar .fc-event {
           border: none !important;
-          border-radius: 3px !important;
-          padding: 1px 4px !important;
-          margin: 1px !important;
+          border-radius: 2px !important;
+          padding: 0px 3px !important;
+          margin: 0.5px !important;
           font-weight: 500 !important;
-          font-size: 0.7rem !important;
+          font-size: 0.65rem !important;
           cursor: pointer !important;
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
           transition: all 0.2s ease !important;
-          line-height: 1.2 !important;
+          line-height: 1.1 !important;
         }
 
         #calendar .fc-event:hover {
           transform: translateY(-1px) !important;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
         }
 
         #calendar .fc-event-title {
@@ -299,17 +330,18 @@ class BookingCalendar extends HTMLElement {
           white-space: nowrap !important;
         }
 
-        /* Compact navigation buttons */
+        /* Compact navigation */
         #calendar .fc-toolbar {
-          margin-bottom: 0.75rem !important;
+          margin-bottom: 0.5rem !important;
         }
 
         #calendar .fc-button-group > .fc-button {
           background: #f8f9fa !important;
           border: 1px solid #e1e5e9 !important;
           color: #495057 !important;
-          font-size: 0.8rem !important;
-          padding: 0.25rem 0.5rem !important;
+          font-size: 0.75rem !important;
+          padding: 0.125rem 0.375rem !important;
+          height: 24px !important;
         }
 
         #calendar .fc-button-group > .fc-button:hover {
@@ -318,122 +350,109 @@ class BookingCalendar extends HTMLElement {
           color: #495057 !important;
         }
 
-        #calendar .fc-button-group > .fc-button:focus {
-          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
-        }
-
         #calendar .fc-button-group > .fc-button.fc-button-active {
           background: #007bff !important;
           border-color: #007bff !important;
           color: white !important;
         }
 
-        /* Responsive Design */
+        /* Mobile responsive */
         @media (max-width: 768px) {
           :host {
-            padding: 0.5rem;
-            font-size: 13px;
+            padding: 0.25rem;
+            font-size: 12px;
           }
           
           .calendar-container {
-            padding: 1rem;
+            padding: 0.5rem;
+            height: calc(100vh - 0.5rem);
           }
           
-          .filter-bar {
-            gap: 0.75rem;
-            padding: 0.75rem;
-          }
-          
-          .filter-bar label {
-            min-width: 100px;
-          }
-          
-          .calendar-header {
+          .filter-content {
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.5rem;
+          }
+          
+          .filter-group {
+            min-width: auto;
+            width: 100%;
+          }
+          
+          .compact-header {
+            flex-direction: column;
+            gap: 0.5rem;
             text-align: center;
           }
           
-          #calendarTitle {
-            font-size: 1.1rem;
-          }
-          
-          .view-btn {
-            width: 32px;
-            height: 24px;
-            font-size: 0.75rem;
+          .header-controls {
+            justify-content: center;
           }
           
           #calendar .fc-daygrid-day {
-            min-height: 60px !important;
+            min-height: 45px !important;
           }
           
           #calendar .fc-event {
-            font-size: 0.65rem !important;
-            padding: 1px 3px !important;
+            font-size: 0.6rem !important;
+            padding: 0px 2px !important;
           }
         }
 
-        @media (max-width: 480px) {
-          .filter-bar {
-            flex-direction: column;
-          }
-          
-          .filter-bar label {
-            min-width: auto;
-          }
-          
-          #calendar .fc-daygrid-day {
-            min-height: 50px !important;
-          }
-          
-          #calendar .fc-daygrid-day-number {
-            font-size: 0.75rem !important;
-            padding: 3px 6px !important;
-            margin: 2px !important;
-            min-width: 20px !important;
-          }
-        }
-
-        /* Loading Animation */
+        /* Loading state */
         .loading {
           color: #6c757d !important;
+        }
+
+        /* Filter icons */
+        .filter-icon {
+          font-size: 0.7rem;
+          transition: transform 0.3s ease;
+        }
+
+        .filter-toggle.active .filter-icon {
+          transform: rotate(180deg);
         }
       </style>
 
       <div class="calendar-container">
-        <div class="filter-bar">
-          <label>
-            <span>📋 Type</span>
-            <select id="typeFilter"><option value="">All Types</option></select>
-          </label>
-
-          <label id="resourceLabel" style="display:none;">
-            <span>🏢 Resource</span>
-            <select id="resourceFilter"><option value="">All Resources</option></select>
-          </label>
-
-          <label>
-            <span>📅 From Date</span>
-            <input type="date" id="fromDate" />
-          </label>
-
-          <label>
-            <span>📅 To Date</span>
-            <input type="date" id="toDate" />
-          </label>
-
-          <button id="applyFilters">
-            Apply Filters
-          </button>
+        <div class="compact-header">
+          <h2 id="calendarTitle" class="loading">Loading Calendar...</h2>
+          <div class="header-controls">
+            <button class="filter-toggle" id="filterToggle">
+              <span>🔍 Filters</span>
+              <span class="filter-icon">▼</span>
+            </button>
+            <div class="view-toggle">
+              <button class="view-btn" data-view="dayGridMonth" title="Month">M</button>
+              <button class="view-btn" data-view="timeGridWeek" title="Week">W</button>
+              <button class="view-btn" data-view="timeGridDay" title="Day">D</button>
+            </div>
+          </div>
         </div>
 
-        <div class="calendar-header">
-          <span id="calendarTitle" class="loading">Loading Calendar...</span>
-          <div class="view-toggle">
-            <button class="view-btn" data-view="dayGridMonth" title="Month View">M</button>
-            <button class="view-btn" data-view="timeGridWeek" title="Week View">W</button>
-            <button class="view-btn" data-view="timeGridDay" title="Day View">D</button>
+        <div class="filter-panel collapsed" id="filterPanel">
+          <div class="filter-content">
+            <div class="filter-group">
+              <label>📋 Type</label>
+              <select id="typeFilter"><option value="">All Types</option></select>
+            </div>
+
+            <div class="filter-group" id="resourceGroup" style="display:none;">
+              <label>🏢 Resource</label>
+              <select id="resourceFilter"><option value="">All Resources</option></select>
+            </div>
+
+            <div class="filter-group">
+              <label>📅 From</label>
+              <input type="date" id="fromDate" />
+            </div>
+
+            <div class="filter-group">
+              <label>📅 To</label>
+              <input type="date" id="toDate" />
+            </div>
+
+            <button class="apply-btn" id="applyFilters">Apply</button>
           </div>
         </div>
 
@@ -456,9 +475,17 @@ class BookingCalendar extends HTMLElement {
       const calendarTitleEl = this.querySelector('#calendarTitle');
       const typeFilter = this.querySelector('#typeFilter');
       const resourceFilter = this.querySelector('#resourceFilter');
-      const resourceLabel = this.querySelector('#resourceLabel');
+      const resourceGroup = this.querySelector('#resourceGroup');
       const fromDateEl = this.querySelector('#fromDate');
       const toDateEl = this.querySelector('#toDate');
+      const filterToggle = this.querySelector('#filterToggle');
+      const filterPanel = this.querySelector('#filterPanel');
+
+      // Filter toggle functionality
+      filterToggle.addEventListener('click', () => {
+        filterPanel.classList.toggle('collapsed');
+        filterToggle.classList.toggle('active');
+      });
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -471,11 +498,11 @@ class BookingCalendar extends HTMLElement {
           position: fixed;
           top: 20px;
           right: 20px;
-          padding: 0.75rem 1rem;
+          padding: 0.5rem 0.75rem;
           border-radius: 4px;
           color: white;
           font-weight: 500;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           z-index: 10000;
           transform: translateX(100%);
           transition: transform 0.3s ease;
@@ -546,9 +573,10 @@ class BookingCalendar extends HTMLElement {
           initialView: 'dayGridMonth',
           headerToolbar: {
             left: 'prev,next today',
-            center: false, // We handle title in our custom header
+            center: false,
             right: ''
           },
+          height: '100%',
           displayEventTime: false,
           events: [],
           datesSet: function(info) {
@@ -560,9 +588,9 @@ class BookingCalendar extends HTMLElement {
             const clickedDate = new Date(info.dateStr);
 
             if (clickedDate < today) {
-              showNotification("You can't book in the past.", "error");
+              showNotification("Can't book in the past", "error");
             } else if (clickedDate > maxDate) {
-              showNotification("You can't book beyond the allowed booking window.", "error");
+              showNotification("Beyond booking window", "error");
             } else {
                 openModal();
                 const now = new Date();
@@ -630,7 +658,7 @@ class BookingCalendar extends HTMLElement {
           const selectedType = typeFilter.value.trim();
           resourceFilter.innerHTML = '<option value="">All Resources</option>';
           if (!selectedType) {
-            resourceLabel.style.display = 'none';
+            resourceGroup.style.display = 'none';
           } else {
             const resourceSet = new Map();
             allBookings.forEach(b => {
@@ -645,13 +673,16 @@ class BookingCalendar extends HTMLElement {
               opt.textContent = name;
               resourceFilter.appendChild(opt);
             });
-            resourceLabel.style.display = 'inline-block';
+            resourceGroup.style.display = 'block';
           }
         });
 
         this.querySelector('#applyFilters').addEventListener('click', () => {
           refreshCalendar();
-          showNotification("Filters applied successfully!", "success");
+          showNotification("Filters applied!", "success");
+          // Auto-collapse filters after applying
+          filterPanel.classList.add('collapsed');
+          filterToggle.classList.remove('active');
         });
 
         this.querySelectorAll('.view-btn').forEach(btn => {
@@ -670,7 +701,7 @@ class BookingCalendar extends HTMLElement {
         console.error('Error loading calendar:', error);
         calendarTitleEl.textContent = 'Error loading calendar';
         calendarTitleEl.classList.remove('loading');
-        showNotification("Error loading calendar data", "error");
+        showNotification("Error loading calendar", "error");
       }
     };
 

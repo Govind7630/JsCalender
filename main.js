@@ -97,6 +97,19 @@ class BookingCalendar extends HTMLElement {
           color: white;
         }
 
+        .filter-toggle:disabled {
+          background: #f8f9fa;
+          border-color: #e1e5e9;
+          color: #6c757d;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        .filter-toggle:disabled:hover {
+          background: #f8f9fa;
+          border-color: #e1e5e9;
+        }
+
         .view-toggle {
           display: flex;
           gap: 0.25rem;
@@ -190,6 +203,12 @@ class BookingCalendar extends HTMLElement {
           box-shadow: 0 0 0 1px rgba(0, 123, 255, 0.25);
         }
 
+        .filter-actions {
+          display: flex;
+          gap: 0.5rem;
+          align-items: flex-end;
+        }
+
         .apply-btn {
           padding: 0.25rem 0.75rem;
           background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
@@ -210,6 +229,35 @@ class BookingCalendar extends HTMLElement {
           background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
           transform: translateY(-1px);
           box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+        }
+
+        .apply-btn:disabled {
+          background: #6c757d;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .reset-btn {
+          padding: 0.25rem 0.75rem;
+          background: #6c757d;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 0.75rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          height: 28px;
+          min-width: 60px;
+        }
+
+        .reset-btn:hover {
+          background: #5a6268;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
         }
 
         #calendar {
@@ -378,6 +426,11 @@ class BookingCalendar extends HTMLElement {
             width: 100%;
           }
           
+          .filter-actions {
+            width: 100%;
+            justify-content: center;
+          }
+          
           .compact-header {
             flex-direction: column;
             gap: 0.5rem;
@@ -418,7 +471,7 @@ class BookingCalendar extends HTMLElement {
         <div class="compact-header">
           <h2 id="calendarTitle" class="loading">Loading Calendar...</h2>
           <div class="header-controls">
-            <button class="filter-toggle" id="filterToggle">
+            <button class="filter-toggle" id="filterToggle" disabled>
               <span>🔍 Filters</span>
               <span class="filter-icon">▼</span>
             </button>
@@ -452,7 +505,10 @@ class BookingCalendar extends HTMLElement {
               <input type="date" id="toDate" />
             </div>
 
-            <button class="apply-btn" id="applyFilters">Apply</button>
+            <div class="filter-actions">
+              <button class="apply-btn" id="applyFilters" disabled>Apply</button>
+              <button class="reset-btn" id="resetFilters">Reset</button>
+            </div>
           </div>
         </div>
 
@@ -480,9 +536,15 @@ class BookingCalendar extends HTMLElement {
       const toDateEl = this.querySelector('#toDate');
       const filterToggle = this.querySelector('#filterToggle');
       const filterPanel = this.querySelector('#filterPanel');
+      const applyBtn = this.querySelector('#applyFilters');
+      const resetBtn = this.querySelector('#resetFilters');
+
+      // Store initial filter values
+      let initialValues = {};
 
       // Filter toggle functionality
       filterToggle.addEventListener('click', () => {
+        if (filterToggle.disabled) return;
         filterPanel.classList.toggle('collapsed');
         filterToggle.classList.toggle('active');
       });
@@ -531,6 +593,38 @@ class BookingCalendar extends HTMLElement {
         }, 3000);
       };
 
+      // Check if any filter values are different from initial
+      const hasFiltersChanged = () => {
+        return typeFilter.value !== initialValues.type ||
+               resourceFilter.value !== initialValues.resource ||
+               fromDateEl.value !== initialValues.fromDate ||
+               toDateEl.value !== initialValues.toDate;
+      };
+
+      // Update button states based on filter changes
+      const updateButtonStates = () => {
+        const hasChanges = hasFiltersChanged();
+        applyBtn.disabled = !hasChanges;
+        filterToggle.disabled = false; // Always enable filter toggle once loaded
+      };
+
+      // Reset filters to initial values
+      const resetFilters = () => {
+        typeFilter.value = initialValues.type;
+        resourceFilter.value = initialValues.resource;
+        fromDateEl.value = initialValues.fromDate;
+        toDateEl.value = initialValues.toDate;
+        
+        // Hide resource group if type is reset to empty
+        if (!typeFilter.value) {
+          resourceGroup.style.display = 'none';
+        }
+        
+        updateButtonStates();
+        refreshCalendar();
+        showNotification("Filters reset!", "info");
+      };
+
       try {
         const settingData = await fetchWithAuth('/o/c/bookingsettings');
         let maxAdvance = 0;
@@ -554,6 +648,14 @@ class BookingCalendar extends HTMLElement {
         fromDateEl.max = maxDateStr;
         toDateEl.min = '';
         toDateEl.max = maxDateStr;
+
+        // Store initial values after setting defaults
+        initialValues = {
+          type: typeFilter.value,
+          resource: resourceFilter.value,
+          fromDate: fromDateEl.value,
+          toDate: toDateEl.value
+        };
 
         const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
         const typeMap = {};
@@ -652,6 +754,13 @@ class BookingCalendar extends HTMLElement {
         };
 
         refreshCalendar();
+        updateButtonStates();
+
+        // Add event listeners for filter changes
+        [typeFilter, resourceFilter, fromDateEl, toDateEl].forEach(element => {
+          element.addEventListener('change', updateButtonStates);
+          element.addEventListener('input', updateButtonStates);
+        });
 
         typeFilter.addEventListener('change', () => {
           const selectedType = typeFilter.value.trim();
@@ -674,15 +783,18 @@ class BookingCalendar extends HTMLElement {
             });
             resourceGroup.style.display = 'block';
           }
+          updateButtonStates();
         });
 
-        this.querySelector('#applyFilters').addEventListener('click', () => {
+        applyBtn.addEventListener('click', () => {
           refreshCalendar();
           showNotification("Filters applied!", "success");
           // Auto-collapse filters after applying
           filterPanel.classList.add('collapsed');
           filterToggle.classList.remove('active');
         });
+
+        resetBtn.addEventListener('click', resetFilters);
 
         this.querySelectorAll('.view-btn').forEach(btn => {
           btn.addEventListener('click', () => {

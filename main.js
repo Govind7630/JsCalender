@@ -222,6 +222,225 @@ class BookingCalendar extends HTMLElement {
           min-height: 0;
         }
 
+        /* Event Details Modal */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .event-modal {
+          background: white;
+          border-radius: 12px;
+          padding: 0;
+          max-width: 450px;
+          width: calc(100% - 2rem);
+          max-height: 80vh;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          transform: scale(0.8) translateY(20px);
+          transition: all 0.3s ease;
+          position: relative;
+        }
+
+        .modal-overlay.active .event-modal {
+          transform: scale(1) translateY(0);
+        }
+
+        .modal-header {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          padding: 1.5rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+          opacity: 0.3;
+        }
+
+        .modal-title {
+          font-size: 1.25rem;
+          font-weight: 700;
+          margin: 0;
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .modal-close {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          color: white;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 1rem;
+          z-index: 2;
+        }
+
+        .modal-close:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.1);
+        }
+
+        .modal-body {
+          padding: 1.5rem;
+        }
+
+        .booking-detail {
+          display: flex;
+          align-items: flex-start;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+          padding: 1rem;
+          background: #f8f9fa;
+          border-radius: 8px;
+          border-left: 4px solid #007bff;
+          transition: all 0.2s ease;
+        }
+
+        .booking-detail:hover {
+          background: #e9ecef;
+          transform: translateX(2px);
+        }
+
+        .detail-icon {
+          font-size: 1.25rem;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        .detail-content {
+          flex: 1;
+        }
+
+        .detail-label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: #6c757d;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+          font-size: 0.95rem;
+          color: #212529;
+          font-weight: 500;
+          line-height: 1.4;
+        }
+
+        .time-section {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .time-detail {
+          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+          border-radius: 8px;
+          padding: 1rem;
+          text-align: center;
+          border: 1px solid #e1e5e9;
+          transition: all 0.2s ease;
+        }
+
+        .time-detail:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .time-icon {
+          font-size: 1.5rem;
+          margin-bottom: 0.5rem;
+          display: block;
+        }
+
+        .time-label {
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #6c757d;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 0.25rem;
+        }
+
+        .time-value {
+          font-size: 0.9rem;
+          color: #212529;
+          font-weight: 600;
+        }
+
+        .duration-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          margin-top: 1rem;
+          box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .status-indicator {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #28a745;
+          display: inline-block;
+          margin-right: 0.5rem;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+
         /* FullCalendar Custom Styling - Ultra Compact */
         #calendar .fc {
           font-family: 'Inter', sans-serif !important;
@@ -396,6 +615,24 @@ class BookingCalendar extends HTMLElement {
             font-size: 0.6rem !important;
             padding: 0px 2px !important;
           }
+
+          .event-modal {
+            width: calc(100% - 1rem);
+            max-height: 90vh;
+          }
+
+          .time-section {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+          }
+
+          .modal-header {
+            padding: 1rem;
+          }
+
+          .modal-body {
+            padding: 1rem;
+          }
         }
 
         /* Loading state */
@@ -458,6 +695,57 @@ class BookingCalendar extends HTMLElement {
 
         <div id="calendar"></div>
       </div>
+
+      <!-- Event Details Modal -->
+      <div class="modal-overlay" id="eventModal">
+        <div class="event-modal">
+          <div class="modal-header">
+            <h3 class="modal-title">
+              <span>📅</span>
+              <span id="modalEventTitle">Booking Details</span>
+            </h3>
+            <button class="modal-close" id="closeModal">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="booking-detail">
+              <div class="detail-icon">🏢</div>
+              <div class="detail-content">
+                <div class="detail-label">Resource</div>
+                <div class="detail-value" id="modalResource">-</div>
+              </div>
+            </div>
+
+            <div class="booking-detail">
+              <div class="detail-icon">📋</div>
+              <div class="detail-content">
+                <div class="detail-label">Booking Type</div>
+                <div class="detail-value" id="modalType">-</div>
+              </div>
+            </div>
+
+            <div class="time-section">
+              <div class="time-detail">
+                <div class="time-icon">🕐</div>
+                <div class="time-label">Start Time</div>
+                <div class="time-value" id="modalStartTime">-</div>
+              </div>
+              <div class="time-detail">
+                <div class="time-icon">🕑</div>
+                <div class="time-label">End Time</div>
+                <div class="time-value" id="modalEndTime">-</div>
+              </div>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="duration-badge">
+                <span class="status-indicator"></span>
+                <span>⏱️ Duration: </span>
+                <span id="modalDuration">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     `;
 
     const script = document.createElement('script');
@@ -480,6 +768,64 @@ class BookingCalendar extends HTMLElement {
       const toDateEl = this.querySelector('#toDate');
       const filterToggle = this.querySelector('#filterToggle');
       const filterPanel = this.querySelector('#filterPanel');
+
+      // Modal elements
+      const eventModal = this.querySelector('#eventModal');
+      const closeModal = this.querySelector('#closeModal');
+      const modalEventTitle = this.querySelector('#modalEventTitle');
+      const modalResource = this.querySelector('#modalResource');
+      const modalType = this.querySelector('#modalType');
+      const modalStartTime = this.querySelector('#modalStartTime');
+      const modalEndTime = this.querySelector('#modalEndTime');
+      const modalDuration = this.querySelector('#modalDuration');
+
+      // Modal functionality
+      const openEventModal = (eventData) => {
+        modalEventTitle.textContent = eventData.title;
+        modalResource.textContent = eventData.resourceName || 'N/A';
+        modalType.textContent = eventData.typeName || 'N/A';
+        
+        const startDate = new Date(eventData.start);
+        const endDate = new Date(eventData.end);
+        
+        modalStartTime.textContent = startDate.toLocaleString('en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+        
+        modalEndTime.textContent = endDate.toLocaleString('en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        });
+        
+        // Calculate duration
+        const durationMs = endDate.getTime() - startDate.getTime();
+        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+        
+        let durationText = '';
+        if (hours > 0) {
+          durationText += `${hours}h `;
+        }
+        if (minutes > 0) {
+          durationText += `${minutes}m`;
+        }
+        if (durationText === '') {
+          durationText = '< 1m';
+        }
+        
+        modalDuration.textContent = durationText.trim();
+        eventModal.classList.add('active');
+      };
+
+      const closeEventModal = () => {
+        eventModal.classList.remove('active');
+      };
+
+      closeModal.addEventListener('click', closeEventModal);
+      eventModal.addEventListener('click', (e) => {
+        if (e.target === eventModal) closeEventModal();
+      });
 
       // Filter toggle functionality
       filterToggle.addEventListener('click', () => {
@@ -599,10 +945,19 @@ class BookingCalendar extends HTMLElement {
 
                 const format = date => date.toISOString().slice(0, 16);
                 document.getElementById('startDateTime').value = format(clickedDate);
-                document.getElementById('endDateTime').value = format(endDate);}
+                document.getElementById('endDateTime').value = format(endDate);
+            }
           },
           eventClick: function(info) {
-            showNotification(`Event: ${info.event.title}`, "info");
+            // Get the original booking data from the event
+            const eventData = info.event.extendedProps;
+            openEventModal({
+              title: info.event.title,
+              start: info.event.start,
+              end: info.event.end,
+              resourceName: eventData.resourceName,
+              typeName: eventData.typeName
+            });
           }
         });
 
@@ -635,15 +990,22 @@ class BookingCalendar extends HTMLElement {
           }).map(b => {
               const typeKey = b.resourceBooking?.type?.key;
               const color = typeColorMap[typeKey] || '#007bff';
+              const resourceName = b.resourceBooking?.name || 'Unknown Resource';
+              const typeName = typeMap[typeKey] || 'Unknown Type';
             
               return {
-                title: `${b.resourceBooking?.name || 'Booking'}`,
+                title: `${resourceName}`,
                 start: b.startDateTime,
                 end: currentView === 'dayGridMonth'? new Date(new Date(b.endDateTime).getTime() + 86400000).toISOString() : b.endDateTime,
                 allDay: currentView === 'dayGridMonth',
                 backgroundColor: color,
                 borderColor: color,
-                textColor: '#fff'
+                textColor: '#fff',
+                extendedProps: {
+                  resourceName: resourceName,
+                  typeName: typeName,
+                  originalBooking: b
+                }
               };
             });
 

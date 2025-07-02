@@ -784,25 +784,26 @@ class BookingCalendar extends HTMLElement {
         modalEventTitle.textContent = eventData.title;
         modalResource.textContent = eventData.resourceName || 'N/A';
         modalType.textContent = eventData.typeName || 'N/A';
-        
-        const startDate = new Date(eventData.start);
-        const endDate = new Date(eventData.end);
-        
+
+        // Use original start/end if available for accuracy
+        let startDate = eventData.originalStart ? new Date(eventData.originalStart) : new Date(eventData.start);
+        let endDate = eventData.originalEnd ? new Date(eventData.originalEnd) : new Date(eventData.end);
+
         modalStartTime.textContent = startDate.toLocaleString('en-US', {
           dateStyle: 'medium',
           timeStyle: 'short'
         });
-        
+
         modalEndTime.textContent = endDate.toLocaleString('en-US', {
           dateStyle: 'medium',
           timeStyle: 'short'
         });
-        
+
         // Calculate duration
         const durationMs = endDate.getTime() - startDate.getTime();
         const hours = Math.floor(durationMs / (1000 * 60 * 60));
         const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-        
+
         let durationText = '';
         if (hours > 0) {
           durationText += `${hours}h `;
@@ -813,7 +814,7 @@ class BookingCalendar extends HTMLElement {
         if (durationText === '') {
           durationText = '< 1m';
         }
-        
+
         modalDuration.textContent = durationText.trim();
         eventModal.classList.add('active');
       };
@@ -956,7 +957,10 @@ class BookingCalendar extends HTMLElement {
               start: info.event.start,
               end: info.event.end,
               resourceName: eventData.resourceName,
-              typeName: eventData.typeName
+              typeName: eventData.typeName,
+              allDay: info.event.allDay,
+              originalStart: eventData.originalStart,
+              originalEnd: eventData.originalEnd
             });
           }
         });
@@ -992,7 +996,6 @@ class BookingCalendar extends HTMLElement {
               const color = typeColorMap[typeKey] || '#007bff';
               const resourceName = b.resourceBooking?.name || 'Unknown Resource';
               const typeName = typeMap[typeKey] || 'Unknown Type';
-            
               return {
                 title: `${resourceName}`,
                 start: b.startDateTime,
@@ -1004,7 +1007,9 @@ class BookingCalendar extends HTMLElement {
                 extendedProps: {
                   resourceName: resourceName,
                   typeName: typeName,
-                  originalBooking: b
+                  originalBooking: b,
+                  originalStart: b.startDateTime,
+                  originalEnd: b.endDateTime
                 }
               };
             });

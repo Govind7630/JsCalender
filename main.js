@@ -750,8 +750,16 @@ class BookingCalendar extends HTMLElement {
 
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js';
+
+    // --- Patch: Add event-driven refresh and expose refreshCalendar ---
     script.onload = async () => {
       const token = await this.getAccessToken();
+      let allBookings = [];
+      let typeColorMap = {};
+      let typeMap = {};
+      let maxDate;
+      let calendar;
+
       const fetchWithAuth = async (url) => {
         const res = await fetch(url, {
           headers: { "Authorization": `Bearer ${token}` }
@@ -878,47 +886,109 @@ class BookingCalendar extends HTMLElement {
         }, 3000);
       };
 
-      try {
-        const settingData = await fetchWithAuth('/o/c/bookingsettings');
-        let maxAdvance = 0;
-        const typeColorMap = {};
+      // --- Main fetch and render logic, now as a method ---
+      this.refreshCalendar = async () => {
+        try {
+          // Re-fetch all bookings and settings
+          const settingData = await fetchWithAuth('/o/c/bookingsettings');
+          typeColorMap = {};
+          let maxAdvance = 0;
+          settingData.items?.forEach(item => {
+            const typeKey = item.resourceType?.key;
+            const color = item.color;
+            const advance = item.maxAdvanceBookingTime;
+            if (advance > maxAdvance) maxAdvance = advance;
+            if (typeKey && color) typeColorMap[typeKey] = color;
+          });
+          maxDate = new Date(today);
+          maxDate.setDate(today.getDate() + maxAdvance);
+          const maxDateStr = maxDate.toISOString().split('T')[0];
+          fromDateEl.max = maxDateStr;
+          toDateEl.max = maxDateStr;
 
-        settingData.items?.forEach(item => {
-          const typeKey = item.resourceType?.key;
-          const color = item.color;
-          const advance = item.maxAdvanceBookingTime;
-          if (advance > maxAdvance) maxAdvance = advance;
-          if (typeKey && color) typeColorMap[typeKey] = color;
-        });
+          // Picklist
+          typeMap = {};
+          const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
+          const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
+          picklistData.items.forEach(entry => {
+            if (!typeMap[entry.key]) {
+              typeMap[entry.key] = entry.name;
+              // Only add if not present
+              if (!typeFilter.querySelector(`option[value="${entry.key}"]`)) {
+                const opt = document.createElement('option');
+                opt.value = entry.key;
+                opt.textContent = entry.name;
+                typeFilter.appendChild(opt);
+              }
+            }
+          });
 
-        const maxDate = new Date(today);
-        maxDate.setDate(today.getDate() + maxAdvance);
-        const maxDateStr = maxDate.toISOString().split('T')[0];
+          allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
 
-        // Set fromDate to today by default, but allow all dates in the past
-        fromDateEl.value = todayStr;
-        fromDateEl.min = '';
-        fromDateEl.max = maxDateStr;
-        toDateEl.min = '';
-        toDateEl.max = maxDateStr;
+          // Now update the calendar events
+          const selectedType = typeFilter.value.trim();
+          const selectedResource = resourceFilter.value.trim();
+          const fromDate = fromDateEl.value;
+          const toDate = toDateEl.value;
+          const currentView = calendar?.view?.type || 'dayGridMonth';
 
-        const picklistERC = "4313e15a-7721-b76a-6eb6-296d0c6d86b2";
-        const typeMap = {};
+          const filtered = allBookings.filter(b => {
+            const r = b.resourceBooking;
+            if (!r) return false;
 
-        const picklistData = await fetchWithAuth(`/o/headless-admin-list-type/v1.0/list-type-definitions/by-external-reference-code/${picklistERC}/list-type-entries`);
-        picklistData.items.forEach(entry => {
-          if (!typeMap[entry.key]) {
-            typeMap[entry.key] = entry.name;
-            const opt = document.createElement('option');
-            opt.value = entry.key;
-            opt.textContent = entry.name;
-            typeFilter.appendChild(opt);
+            const bookingTypeKey = r.type?.key || '';
+            const bookingResId = (r.id || '').toString();
+            const start = new Date(b.startDateTime);
+            const end = new Date(b.endDateTime);
+            const from = fromDate ? new Date(fromDate + 'T00:00:00') : null;
+            const to = toDate ? new Date(toDate + 'T23:59:59') : null;
+
+            if (selectedType && bookingTypeKey !== selectedType) return false;
+            if (selectedResource && bookingResId !== selectedResource) return false;
+            if (from && end < from) return false;
+            if (to && start > to) return false;
+
+            return true;
+          }).map(b => {
+              const typeKey = b.resourceBooking?.type?.key;
+              const color = typeColorMap[typeKey] || '#007bff';
+              const resourceName = b.resourceBooking?.name || 'Unknown Resource';
+              const typeName = typeMap[typeKey] || 'Unknown Type';
+              return {
+                title: `${resourceName}`,
+                start: b.startDateTime,
+                end: currentView === 'dayGridMonth'? new Date(new Date(b.endDateTime).getTime() + 86400000).toISOString() : b.endDateTime,
+                allDay: currentView === 'dayGridMonth',
+                backgroundColor: color,
+                borderColor: color,
+                textColor: '#fff',
+                extendedProps: {
+                  resourceName: resourceName,
+                  typeName: typeName,
+                  originalBooking: b,
+                  originalStart: b.startDateTime,
+                  originalEnd: b.endDateTime
+                }
+              };
+            });
+
+          if (calendar) {
+            calendar.removeAllEvents();
+            calendar.addEventSource(filtered);
           }
-        });
+        } catch (error) {
+          console.error('Error refreshing calendar:', error);
+          calendarTitleEl.textContent = 'Error loading calendar';
+          calendarTitleEl.classList.remove('loading');
+          showNotification("Error loading calendar", "error");
+        }
+      };
 
-        let allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
+      // --- Initial render logic ---
+      try {
+        await this.refreshCalendar();
 
-        const calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
           headerToolbar: {
             left: 'prev,next today',
@@ -966,60 +1036,15 @@ class BookingCalendar extends HTMLElement {
         });
 
         calendar.render();
+        // After render, update events
+        await this.refreshCalendar();
 
-        const refreshCalendar = () => {
-          const selectedType = typeFilter.value.trim();
-          const selectedResource = resourceFilter.value.trim();
-          const fromDate = fromDateEl.value;
-          const toDate = toDateEl.value;
-          const currentView = calendar.view?.type || 'dayGridMonth';
+        // --- Listen for booking events from other widgets ---
+        window.addEventListener('booking:created', () => this.refreshCalendar());
+        window.addEventListener('booking:deleted', () => this.refreshCalendar());
+        window.addEventListener('booking:changed', () => this.refreshCalendar());
 
-          const filtered = allBookings.filter(b => {
-            const r = b.resourceBooking;
-            if (!r) return false;
-
-            const bookingTypeKey = r.type?.key || '';
-            const bookingResId = (r.id || '').toString();
-            const start = new Date(b.startDateTime);
-            const end = new Date(b.endDateTime);
-            const from = fromDate ? new Date(fromDate + 'T00:00:00') : null;
-            const to = toDate ? new Date(toDate + 'T23:59:59') : null;
-
-            if (selectedType && bookingTypeKey !== selectedType) return false;
-            if (selectedResource && bookingResId !== selectedResource) return false;
-            if (from && end < from) return false;
-            if (to && start > to) return false;
-
-            return true;
-          }).map(b => {
-              const typeKey = b.resourceBooking?.type?.key;
-              const color = typeColorMap[typeKey] || '#007bff';
-              const resourceName = b.resourceBooking?.name || 'Unknown Resource';
-              const typeName = typeMap[typeKey] || 'Unknown Type';
-              return {
-                title: `${resourceName}`,
-                start: b.startDateTime,
-                end: currentView === 'dayGridMonth'? new Date(new Date(b.endDateTime).getTime() + 86400000).toISOString() : b.endDateTime,
-                allDay: currentView === 'dayGridMonth',
-                backgroundColor: color,
-                borderColor: color,
-                textColor: '#fff',
-                extendedProps: {
-                  resourceName: resourceName,
-                  typeName: typeName,
-                  originalBooking: b,
-                  originalStart: b.startDateTime,
-                  originalEnd: b.endDateTime
-                }
-              };
-            });
-
-          calendar.removeAllEvents();
-          calendar.addEventSource(filtered);
-        };
-
-        refreshCalendar();
-
+        // --- Filter and view controls ---
         typeFilter.addEventListener('change', () => {
           const selectedType = typeFilter.value.trim();
           resourceFilter.innerHTML = '<option value="">All Resources</option>';
@@ -1044,7 +1069,7 @@ class BookingCalendar extends HTMLElement {
         });
 
         this.querySelector('#applyFilters').addEventListener('click', () => {
-          refreshCalendar();
+          this.refreshCalendar();
           showNotification("Filters applied!", "success");
           // Auto-collapse filters after applying
           filterPanel.classList.add('collapsed');
@@ -1056,7 +1081,7 @@ class BookingCalendar extends HTMLElement {
             document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             calendar.changeView(btn.dataset.view);
-            setTimeout(refreshCalendar, 0);
+            setTimeout(() => this.refreshCalendar(), 0);
           });
         });
 

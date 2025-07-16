@@ -722,7 +722,13 @@ class BookingCalendar extends HTMLElement {
                 <div class="detail-value" id="modalType">-</div>
               </div>
             </div>
-
+            <div class="booking-detail">
+                <div class="detail-icon">📍</div>
+                <div class="detail-content">
+                    <div class="detail-label">Location</div>
+                    <div class="detail-value" id="modalLocation">-</div>
+                </div>
+            </div>
             <div class="time-section">
               <div class="time-detail">
                 <div class="time-icon">🕐</div>
@@ -734,13 +740,6 @@ class BookingCalendar extends HTMLElement {
                 <div class="time-label">End Time</div>
                 <div class="time-value" id="modalEndTime">-</div>
               </div>
-            </div>
-            <div class="booking-detail">
-                <div class="detail-icon">📍</div>
-                <div class="detail-content">
-                    <div class="detail-label">Location</div>
-                    <div class="detail-value" id="modalLocation">-</div>
-                </div>
             </div>
             <div style="text-align: center;">
               <div class="duration-badge">

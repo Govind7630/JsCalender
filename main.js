@@ -1015,15 +1015,8 @@ class BookingCalendar extends HTMLElement {
             if (clickedDate > maxDate) {
               showNotification("Beyond booking window", "error");
             } else {
-                openModal();
-                const now = new Date();
-                const clickedDate = new Date(info.dateStr);
-                clickedDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
-                const endDate = new Date(clickedDate.getTime() + 60 * 60 * 1000);
-
-                const format = date => date.toISOString().slice(0, 16);
-                document.getElementById('startDateTime').value = format(clickedDate);
-                document.getElementById('endDateTime').value = format(endDate);
+              // Pass the clicked date string to openModal
+              window.openModal(info.dateStr);
             }
           },
           eventClick: function(info) {

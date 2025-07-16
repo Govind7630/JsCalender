@@ -735,7 +735,13 @@ class BookingCalendar extends HTMLElement {
                 <div class="time-value" id="modalEndTime">-</div>
               </div>
             </div>
-
+            <div class="booking-detail">
+                <div class="detail-icon">📍</div>
+                <div class="detail-content">
+                    <div class="detail-label">Location</div>
+                    <div class="detail-value" id="modalLocation">-</div>
+                </div>
+            </div>
             <div style="text-align: center;">
               <div class="duration-badge">
                 <span class="status-indicator"></span>
@@ -786,13 +792,14 @@ class BookingCalendar extends HTMLElement {
       const modalStartTime = this.querySelector('#modalStartTime');
       const modalEndTime = this.querySelector('#modalEndTime');
       const modalDuration = this.querySelector('#modalDuration');
-
+      const modalLocation = this.querySelector('#modalLocation');
+      
       // Modal functionality
       const openEventModal = (eventData) => {
         modalEventTitle.textContent = eventData.title;
         modalResource.textContent = eventData.resourceName || 'N/A';
         modalType.textContent = eventData.typeName || 'N/A';
-
+        modalLocation.textContent = eventData.location || 'Not specified';
         // Use original start/end if available for accuracy
         let startDate = eventData.originalStart ? new Date(eventData.originalStart) : new Date(eventData.start);
         let endDate = eventData.originalEnd ? new Date(eventData.originalEnd) : new Date(eventData.end);
@@ -965,6 +972,7 @@ class BookingCalendar extends HTMLElement {
                 extendedProps: {
                   resourceName: resourceName,
                   typeName: typeName,
+                  location: b.resourceBooking?.location || 'Not specified',
                   originalBooking: b,
                   originalStart: b.startDateTime,
                   originalEnd: b.endDateTime
@@ -1028,6 +1036,7 @@ class BookingCalendar extends HTMLElement {
               end: info.event.end,
               resourceName: eventData.resourceName,
               typeName: eventData.typeName,
+              location: eventData.location,
               allDay: info.event.allDay,
               originalStart: eventData.originalStart,
               originalEnd: eventData.originalEnd

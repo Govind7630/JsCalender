@@ -929,7 +929,25 @@ class BookingCalendar extends HTMLElement {
             }
           });
 
-          allBookings = (await fetchWithAuth('/o/c/bookings?nestedFields=resourceBooking')).items;
+          allBookings = [];
+          let page = 1;
+          const pageSize = 50; // adjust as per API limits or your preference
+          
+          while (true) {
+            const url = `/o/c/bookings?page=${page}&pageSize=${pageSize}&nestedFields=resourceBooking`;
+            const res = await fetchWithAuth(url);
+          
+            if (res.items && res.items.length > 0) {
+              allBookings = allBookings.concat(res.items);
+            }
+          
+            if (!res.lastPage || page >= res.lastPage) {
+              // No more pages
+              break;
+            }
+          
+            page++;
+          }
 
           // Now update the calendar events
           const selectedType = typeFilter.value.trim();

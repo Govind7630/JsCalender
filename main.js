@@ -979,6 +979,7 @@ class BookingCalendar extends HTMLElement {
               const resourceName = b.resourceBooking?.name || 'Unknown Resource';
               const typeName = typeMap[typeKey] || 'Unknown Type';
               return {
+                id: b.id,
                 title: `${resourceName}`,
                 start: b.startDateTime,
                 end: currentView === 'dayGridMonth'? new Date(new Date(b.endDateTime).getTime() + 86400000).toISOString() : b.endDateTime,

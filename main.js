@@ -982,6 +982,7 @@ class BookingCalendar extends HTMLElement {
           if (calendar) {
             calendar.removeAllEvents();
             calendar.addEventSource(filtered);
+            calendar.updateSize(); 
           }
         } catch (error) {
           console.error('Error refreshing calendar:', error);
